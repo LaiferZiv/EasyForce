@@ -1,7 +1,7 @@
 from datetime import datetime,timedelta
-from data_mangement.data_modification import add_record
-from utils import questions,get_primary_key_column_names,get_column_value_by_primary_key,is_positive_integer,get_primary_key_val_by_unique_column_val,is_number
-from add_relationships import add_TaskRole_questions
+from EasyForce.data_mangement.data_modification import add_record
+from EasyForce.utils import questions,is_positive_integer,is_number
+from EasyForce.data_mangement.read_db import get_primary_key_column_names,get_column_value_by_primary_key,get_primary_key_val_by_unique_column_val
 
 def add_TimeRange_questions(table, table_data):
     """
@@ -56,13 +56,13 @@ def add_TimeRange_questions(table, table_data):
                 end_str = end_dt.strftime("%Y-%m-%d %H:%M:%S")
 
                 # add to TimeRange table
-                timeRangeID = add_record("TimeRange", {"StartDateTime": start_str, "EndDateTime": end_str})
+                time_range_id = add_record("TimeRange", {"StartDateTime": start_str, "EndDateTime": end_str})
 
                 # add to Presence table (indicating "in")
                 data = {
                     "SoldierOrTeamType": "Soldier",
                     "SoldierOrTeamID": table_data["SoldierID"],
-                    "TimeID": timeRangeID[0],
+                    "TimeID": time_range_id[0],
                     "isPresence": 1,  # 1 = in
                 }
                 questions("Presence", "add", data)
@@ -123,13 +123,13 @@ def add_TimeRange_questions(table, table_data):
                 end_str = end_dt.strftime("%Y-%m-%d %H:%M:%S")
 
                 # add to TimeRange table
-                timeRangeID = add_record("TimeRange", {"StartDateTime": start_str, "EndDateTime": end_str})
+                time_range_id = add_record("TimeRange", {"StartDateTime": start_str, "EndDateTime": end_str})
 
                 #add to Presence table (indicating "out")
                 data = {
                     "SoldierOrTeamType": "Soldier",
                     "SoldierOrTeamID": table_data["SoldierID"],
-                    "TimeID": timeRangeID[0],
+                    "TimeID": time_range_id[0],
                     "isPresence": 0,  # 0 = out
                 }
                 questions("Presence", "add", data)
@@ -166,9 +166,9 @@ def add_Team_questions(soldier_name = "the "):
         return None
 
     data["TeamName"] = team_name
-    teamID = add_record("Team", data)
+    team_id = add_record("Team", data)
     team_primary_columns = get_primary_key_column_names("Team")
-    team_name = get_column_value_by_primary_key("Team","TeamName",team_primary_columns,teamID)
+    team_name = get_column_value_by_primary_key("Team","TeamName",team_primary_columns,team_id)
     if not by_soldier:
         while True:
             ans = input(f"Would you like to add {more}soldiers to {team_name} team? (Y/N): ").strip()
@@ -180,7 +180,7 @@ def add_Team_questions(soldier_name = "the "):
                     more = "more "
             else: # N
                 break
-    return teamID
+    return team_id
 
 def add_Soldier_questions(team_name):
     data = {}
@@ -240,7 +240,7 @@ def add_Role_questions(table,table_data):
                 table_data["RoleID"] = add_record("Role", {"RoleName": role_name})
                 questions("SoldierRole","add",table_data)
     elif table == "TemporaryTask" or table == "RecurringTask":
-        add_TaskRole_questions()
+        return
 
 def add_TemporaryTask_questions():
     data = {}

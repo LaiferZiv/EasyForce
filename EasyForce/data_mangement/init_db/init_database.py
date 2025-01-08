@@ -1,6 +1,6 @@
-from data_mangement.init_db.init_entities import init_entities
-from data_mangement.init_db.init_relationships import init_relationships
-from data_mangement.init_db.init_triggers import init_triggers
+from EasyForce.data_mangement.init_db.init_entities import  init_entities
+from EasyForce.data_mangement.init_db.init_relationships import  init_relationships
+from EasyForce.data_mangement.init_db.init_triggers import init_triggers
 
 def initialize_database():
     """Initialize the database and create all necessary tables."""

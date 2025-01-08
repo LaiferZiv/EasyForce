@@ -1,14 +1,14 @@
 import sqlite3
-from utils import initialize_table_names
+from EasyForce.utils import initialize_table_names
 
 def display_table(table_name):
     """Display the contents of a specified table, printing first the tuple of column names
     in their creation order, then each row in that same order."""
 
-    DATABASE_NAME = 'my_database.db'
+    database_name = 'my_database.db'
     conn = None
     try:
-        conn = sqlite3.connect(DATABASE_NAME)
+        conn = sqlite3.connect(database_name)
         cursor = conn.cursor()
 
         # Execute a query to select all columns
@@ -101,13 +101,13 @@ def get_column_value_by_primary_key(table, column, primary_key_columns, primary_
     Returns:
         The value of the specified column if found, or None if no matching record exists.
     """
-    DATABASE_NAME = 'my_database.db'
+    database_name = 'my_database.db'
     if len(primary_key_columns) != len(primary_key_values):
         print("Error: The number of PK columns does not match the number of PK values.")
         return None
 
     try:
-        with sqlite3.connect(DATABASE_NAME) as conn:
+        with sqlite3.connect(database_name) as conn:
             cursor = conn.cursor()
 
             # Build the WHERE clause dynamically based on the tuple of PK columns
@@ -173,9 +173,9 @@ def get_unique_column_name(table: str):
     if table in ("SoldierRole", "Presence", "TaskRole", "TaskPeriod"):
         return None
 
-    DATABASE_NAME = 'my_database.db'
+    database_name = 'my_database.db'
     try:
-        with sqlite3.connect(DATABASE_NAME) as conn:
+        with sqlite3.connect(database_name) as conn:
             cursor = conn.cursor()
 
             # 1) Ensure the table exists

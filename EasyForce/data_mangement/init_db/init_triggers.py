@@ -1,4 +1,5 @@
 import sqlite3
+from EasyForce.config import DB_PATH
 
 def init_triggers():
     """Initialize the triggers."""
@@ -6,7 +7,7 @@ def init_triggers():
     return_val = True
 
     try:
-        conn = sqlite3.connect('../../my_database.db')
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
         # Enable foreign key constraints

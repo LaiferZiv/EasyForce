@@ -1,4 +1,4 @@
-from data_mangement.data_modification import add_record
+from EasyForce.data_mangement.data_modification import add_record
 
 def add_Presence_questions(table_data):
     add_record("Presence",table_data)

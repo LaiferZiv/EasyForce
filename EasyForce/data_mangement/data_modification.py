@@ -1,5 +1,5 @@
 import sqlite3
-from data_mangement.read_db import get_primary_key_column_names,get_unique_column_name
+from EasyForce.data_mangement.read_db import get_primary_key_column_names,get_unique_column_name
 
 def add_record(table, data):
     """
@@ -28,7 +28,7 @@ def add_record(table, data):
               or if the record already exists (by unique or full-PK check).
             - None if the insert failed or if no primary key columns were found.
     """
-    DATABASE_NAME = 'my_database.db'
+    database_name = 'my_database.db'
 
     # 1. If no data is provided, return None
     if not data:
@@ -49,7 +49,7 @@ def add_record(table, data):
         unique_val = data[unique_col]
         try:
             # Use a direct query or helper function to see if a row already exists by that UNIQUE column
-            with sqlite3.connect(DATABASE_NAME) as conn:
+            with sqlite3.connect(database_name) as conn:
                 cursor = conn.cursor()
 
                 # Build the query to check if there's an existing record with this unique value
@@ -70,7 +70,7 @@ def add_record(table, data):
     all_pk_in_data = all(pk_col in data for pk_col in pk_columns)
     if all_pk_in_data:
         try:
-            with sqlite3.connect(DATABASE_NAME) as conn:
+            with sqlite3.connect(database_name) as conn:
                 cursor = conn.cursor()
 
                 # Build WHERE clause for all PK columns
@@ -90,7 +90,7 @@ def add_record(table, data):
             return None
 
     # 3. If no matching record (unique or composite PK), proceed with the normal insertion
-    with sqlite3.connect(DATABASE_NAME) as conn:
+    with sqlite3.connect(database_name) as conn:
         cursor = conn.cursor()
 
         # Retrieve schema info and maintain the column order
@@ -152,7 +152,7 @@ def update_record(table, data):
     Returns:
         bool: True if the record was updated successfully, False otherwise.
     """
-    DATABASE_NAME = 'my_database.db'
+    database_name = 'my_database.db'
     primary_key_values = {}
     for key in get_primary_key_column_names(table):
         primary_key_values[key] = data[key]
@@ -161,7 +161,7 @@ def update_record(table, data):
         print("No data or primary key values provided to update.")
         return False
 
-    with sqlite3.connect(DATABASE_NAME) as conn:
+    with sqlite3.connect(database_name) as conn:
         cursor = conn.cursor()
 
         # Get column order from the database schema
