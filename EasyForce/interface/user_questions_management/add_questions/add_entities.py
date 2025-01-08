@@ -1,6 +1,6 @@
 from datetime import datetime,timedelta
 from EasyForce.data_mangement.data_modification import add_record
-from EasyForce.utils import questions,is_positive_integer,is_number
+from EasyForce.common.utils import questions,is_positive_integer,is_number
 from EasyForce.data_mangement.read_db import get_primary_key_column_names,get_column_value_by_primary_key,get_primary_key_val_by_unique_column_val
 
 def add_TimeRange_questions(table, table_data):

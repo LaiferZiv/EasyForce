@@ -1,4 +1,4 @@
-from EasyForce.utils import questions,initialize_table_names
+from EasyForce.common.utils import questions,initialize_table_names
 from EasyForce.data_mangement.read_db import display_table,display_all_tables
 
 def menu():

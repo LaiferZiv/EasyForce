@@ -1,5 +1,5 @@
 import sqlite3
-from EasyForce.config import DB_PATH
+from EasyForce.common.config import DB_PATH
 
 def init_entities():
     """Initialize the entities."""

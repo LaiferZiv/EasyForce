@@ -1,6 +1,5 @@
 import sys
 from EasyForce.data_mangement.init_db.init_database import initialize_database
-from EasyForce.config import DB_PATH
 from interface.main_interface import menu
 
 if __name__ == "__main__":

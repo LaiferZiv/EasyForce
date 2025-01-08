@@ -1,5 +1,5 @@
 import sqlite3
-from EasyForce.utils import initialize_table_names
+from EasyForce.common.utils import initialize_table_names
 
 def display_table(table_name):
     """Display the contents of a specified table, printing first the tuple of column names
