@@ -25,9 +25,7 @@ def menu():
             if choice in entity_actions:
                 entity = extract_match_from_text(choice,entities)
                 entity_actions = [f"{action} a {entity.lower()}" for action in actions]
-                other_options = ["Return"]
-                options = entity_actions + other_options
-                choice = display_question_and_get_answer("",options)
+                choice = display_question_and_get_answer("",entity_actions)
                 if choice == "Return":
                     break
                 action = extract_match_from_text(choice,actions)

@@ -156,7 +156,7 @@ def questions(table, action, *args):
         print(f"Invalid table or action: table={table}, action={action}")
         return None
 
-def display_question_and_get_answer(question, options):
+def display_question_and_get_answer(question, options, previous_question = None):
     """
     Displays a question with its options, gets user input, and returns the selected option number.
 
@@ -167,6 +167,8 @@ def display_question_and_get_answer(question, options):
     Returns:
         str: answer.
     """
+    if previous_question:
+        options.append("Return")
     print(question)
     for i, option in enumerate(options, 1):
         print(f"{i}. {option}")
@@ -180,6 +182,13 @@ def display_question_and_get_answer(question, options):
                 print("Invalid choice. Please select a valid option.")
         except ValueError:
             print("Please enter a valid number.")
+
+def yes_no_question(question):
+    question = f"Would you like to {question} ?"
+    options = ["Yes","No"]
+    if "Yes" == display_question_and_get_answer(question,options):
+        return True
+    return False
 
 def extract_match_from_text(selected_text, candidates):
     """
@@ -199,3 +208,13 @@ def extract_match_from_text(selected_text, candidates):
         if candidate.lower() in selected_text.lower():
             return candidate
     raise ValueError("No matching candidate found in the selected text.")
+
+def get_datetime_input(prompt,default_delta = None):
+    while True:
+        user_input = input(prompt).strip()
+        if user_input == "":
+            return datetime.now() + default_delta
+        try:
+            return datetime.strptime(user_input, "%Y-%m-%d %H:%M")
+        except ValueError:
+                print("invalid input. use format yyyy-mm-dd hh:mm")

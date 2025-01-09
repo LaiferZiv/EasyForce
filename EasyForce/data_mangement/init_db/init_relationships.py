@@ -37,17 +37,6 @@ def init_relationships():
         );
         """)
 
-        # 3) TaskPeriod
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS TaskPeriod(
-            TaskType TEXT NOT NULL CHECK(TaskType IN ('TemporaryTask', 'RecurringTask')),
-            TaskID INTEGER NOT NULL,
-            TimeID INTEGER NOT NULL,
-            PRIMARY KEY (TaskType, TaskID, TimeID),
-            FOREIGN KEY (TimeID) REFERENCES TimeRange(TimeID) ON DELETE CASCADE ON UPDATE CASCADE
-        );
-        """)
-
         # 4) TaskRole
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS TaskRole(

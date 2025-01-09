@@ -1,209 +1,118 @@
-from datetime import datetime,timedelta
+from datetime import timedelta
 from EasyForce.data_mangement.data_modification import add_record
-from EasyForce.common.utils import questions,is_positive_integer,is_number
-from EasyForce.data_mangement.read_db import get_primary_key_column_names,get_column_value_by_primary_key,get_primary_key_val_by_unique_column_val
+from EasyForce.common.utils import questions, is_positive_integer, is_number, \
+    yes_no_question,get_datetime_input
+from EasyForce.data_mangement.read_db import get_primary_key_column_names,\
+    get_column_value_by_primary_key,get_primary_key_val_by_unique_column_val
+
 
 def add_TimeRange_questions(table, table_data):
     """
     Adds time ranges for a soldier's presence (in/out) at the base
     """
+    def add_time_ranges(pos = ""):
+        time_format = "time (YYYY-MM-DD HH:MM) or press Enter"
+        is_presence = 1
+        if table == "Soldier":
+            question = f"add times when {table_data['FullName']} is {pos} the base"
+            is_presence = 1 if pos == "in" else 0
+            (start_prompt,end_prompt) = ("arrival","departure") if is_presence else ("departure","return")
+            start_prompt = f"Enter {table_data['FullName']}'s {start_prompt} {time_format} for now: "
+            end_prompt = f"Enter {table_data['FullName']}'s {end_prompt} {time_format} if unknown: "
+            more_question = f"add more times when {table_data['FullName']} is {pos} the base"
+        else: #Tasks
+            question = f"add the time range during which the task {table_data['TaskName']} is relevant ('No' indicates it's inactive)"
+            start_prompt = f"Enter the task's start {time_format} for now: "
+            end_prompt = f"Enter the task's end {time_format} if unknown: "
+            more_question = f"add more times when {table_data['TaskName']} is active"
 
-    # Ensure we're dealing with the "Soldier" table
+        is_active = yes_no_question(question)
+        if is_active:
+            while True:
+                start_dt = get_datetime_input(start_prompt,timedelta(days=0))
+                end_dt = get_datetime_input(end_prompt,timedelta(days=365))
+                time_range_data = {
+                "StartDateTime" : start_dt,
+                "EndDateTime" : end_dt
+                }
+                time_range_id = add_record("TimeRange",time_range_data)
+                presence_data = {
+                "TimeID" : time_range_id,
+                "SoldierOrTeamType" : table,
+                "SoldierOrTeamID" : table_data["SoldierID"] if table == "Soldier" else table_data["TeamID"],
+                "isPresence" : is_presence if table == "Soldier" else 1
+                }
+                questions("Presence" if table == "Soldier" else "TaskPeriod","add",presence_data)
+
+                if not yes_no_question(more_question):
+                    break
+
     if table == "Soldier":
+        add_time_ranges("in")
+        add_time_ranges("out")
+    else:
+        add_time_ranges()
 
-        # Ask if the user wants to add time ranges for "in"
-        while True:
-            ans_in = input(f"Would you like to add times when {table_data['FullName']} is present at the base? (Y/N): ").strip()
-            if ans_in in {'y', 'Y', 'n', 'N'}:
-                break
-            else:
-                print("Invalid input! Please enter Y or N.")
-
-        if ans_in in {'y', 'Y'}:
-            while True:
-                #Get start time
-                while True:
-                    start_input = input(
-                        f"Enter {table_data['FullName']}'s arrival time (YYYY-MM-DD HH:MM) or 'n'/'N' for now: ").strip()
-                    if start_input in {'n', 'N'}:
-                        start_dt = datetime.now()
-                        break
-                    else:
-                        try:
-                            start_dt = datetime.strptime(start_input, "%Y-%m-%d %H:%M")
-                            break
-                        except ValueError:
-                            print("Invalid format. Please use 'YYYY-MM-DD HH:MM' or 'n'/'N' for now.")
-
-                # Get end time
-                while True:
-                    end_input = input(
-                        f"Enter {table_data['FullName']}'s departure time (YYYY-MM-DD HH:MM), or press Enter if unknown: "
-                    ).strip()
-                    if end_input == "":
-                        # Default: 1 year from now if unknown
-                        end_dt = start_dt + timedelta(days=365)
-                        break
-                    else:
-                        try:
-                            end_dt = datetime.strptime(end_input, "%Y-%m-%d %H:%M")
-                            break
-                        except ValueError:
-                            print("Invalid format. Please use 'YYYY-MM-DD HH:MM' or press Enter if unknown.")
-
-                # Convert datetime objects to string format
-                start_str = start_dt.strftime("%Y-%m-%d %H:%M:%S")
-                end_str = end_dt.strftime("%Y-%m-%d %H:%M:%S")
-
-                # add to TimeRange table
-                time_range_id = add_record("TimeRange", {"StartDateTime": start_str, "EndDateTime": end_str})
-
-                # add to Presence table (indicating "in")
-                data = {
-                    "SoldierOrTeamType": "Soldier",
-                    "SoldierOrTeamID": table_data["SoldierID"],
-                    "TimeID": time_range_id[0],
-                    "isPresence": 1,  # 1 = in
-                }
-                questions("Presence", "add", data)
-
-                # Ask if user wants to add more "in" time ranges
-                while True:
-                    ans_more_in = input(f"Would you like to add more times when {table_data['FullName']} is in the base? (Y/N): ").strip()
-                    if ans_more_in in {'y', 'Y', 'n', 'N'}:
-                        break
-                    else:
-                        print("Invalid input! Please enter Y or N.")
-
-                if ans_more_in not in {'y', 'Y'}:
-                    break
-
-        # Ask if the user wants to add time ranges for "out"
-        while True:
-            ans_out = input(f"Would you like to add times when {table_data['FullName']} is out of the base? (Y/N): ").strip()
-            if ans_out in {'y', 'Y', 'n', 'N'}:
-                break
-            else:
-                print("Invalid input! Please enter Y or N.")
-
-        if ans_out in {'y', 'Y'}:
-            while True:
-                # Get start time (out = departure)
-                while True:
-                    start_input = input(
-                        f"Enter {table_data['FullName']}'s departure time (YYYY-MM-DD HH:MM) or 'n'/'N' for now: "
-                    ).strip()
-                    if start_input in {'n', 'N'}:
-                        start_dt = datetime.now()
-                        break
-                    else:
-                        try:
-                            start_dt = datetime.strptime(start_input, "%Y-%m-%d %H:%M")
-                            break
-                        except ValueError:
-                            print("Invalid format. Please use 'YYYY-MM-DD HH:MM' or 'n'/'N' for now.")
-
-                # 2b) Get end time (return)
-                while True:
-                    end_input = input(
-                        f"Enter {table_data['FullName']}'s return time (YYYY-MM-DD HH:MM), or press Enter if unknown: "
-                    ).strip()
-                    if end_input == "":
-                        end_dt = start_dt + timedelta(days=365)
-                        break
-                    else:
-                        try:
-                            end_dt = datetime.strptime(end_input, "%Y-%m-%d %H:%M")
-                            break
-                        except ValueError:
-                            print("Invalid format. Please use 'YYYY-MM-DD HH:MM' or press Enter if unknown.")
-
-                # Convert datetime objects to string format
-                start_str = start_dt.strftime("%Y-%m-%d %H:%M:%S")
-                end_str = end_dt.strftime("%Y-%m-%d %H:%M:%S")
-
-                # add to TimeRange table
-                time_range_id = add_record("TimeRange", {"StartDateTime": start_str, "EndDateTime": end_str})
-
-                #add to Presence table (indicating "out")
-                data = {
-                    "SoldierOrTeamType": "Soldier",
-                    "SoldierOrTeamID": table_data["SoldierID"],
-                    "TimeID": time_range_id[0],
-                    "isPresence": 0,  # 0 = out
-                }
-                questions("Presence", "add", data)
-
-                #Ask if user wants to add more "out" time ranges
-                while True:
-                    ans_more_out = input(f"Would you like to add more times when {table_data['FullName']} is out the base? (Y/N): ").strip()
-                    if ans_more_out in {'y', 'Y', 'n', 'N'}:
-                        break
-                    else:
-                        print("Invalid input! Please enter Y or N.")
-
-                if ans_more_out not in {'y', 'Y'}:
-                    break
-
-def add_Team_questions(soldier_name = "the "):
+def add_Team_questions(soldier_name = None):
+    question = "Please enter the team name: "
+    if soldier_name:
+        question = f"Please enter {soldier_name}'s team name ('R' to return): "
     data = {}
-    return_to_last_question = " ('R' to return)"
-    more = ""
-    by_soldier = False
-    if soldier_name != "the ":
-        by_soldier = True
-        soldier_name = f"{soldier_name}'s "
-        return_to_last_question = ""
 
     # Request team name from the user
     while True:
-        team_name = input(f"Please enter {soldier_name}team name{return_to_last_question}: ").strip()
-        if not team_name:
-            print("Team name cannot be empty. Please try again.")
-        else:
+        team_name = input(question).strip()
+        if team_name:
             break
-    if return_to_last_question == " ('R' to return)" and team_name in {'R','r'}:
+        else:
+            print("Team name cannot be empty. Please try again.")
+    if team_name in {'R','r'}:
         return None
 
     data["TeamName"] = team_name
     team_id = add_record("Team", data)
-    print(f"TeamID is {team_id}")
-    team_primary_columns = get_primary_key_column_names("Team")
-    team_name = get_column_value_by_primary_key("Team","TeamName",team_primary_columns,team_id)
-    if not by_soldier:
+    team_table_primary_columns = get_primary_key_column_names("Team")
+    team_name = get_column_value_by_primary_key("Team","TeamName",team_table_primary_columns,team_id)
+    if not soldier_name:
+        question = f"add soldiers to {team_name} team"
         while True:
-            ans = input(f"Would you like to add {more}soldiers to {team_name} team? (Y/N): ").strip()
-            if ans not in {'y','Y','n','N'}:
-                print("Invalid input! Please enter Y or N.")
-                continue
-            elif ans in {'y','Y'}:
-                if questions("Soldier", "add", team_name):
-                    more = "more "
-            else: # N
+            answer = yes_no_question(question)
+            if answer:
+                if not questions("Soldier", "add", team_name):
+                    return team_id
+                question = f"add more soldiers to {team_name} team?"
+            else:
                 break
     return team_id
 
 def add_Soldier_questions(team_name):
     data = {}
-    prefix = "a" if team_name else "the"
-    # Request soldier name from the user
-    soldier_name = input(f"Please enter {prefix} soldier name ('R' to return): ").strip()
-
-    if not soldier_name:
-        print("Soldier name cannot be empty. Please try again.")
-        return None
-    elif soldier_name in {'R','r'}:
-        return None
+    question = f"Please enter the soldier name ('R' to return): "
+    if team_name:
+        question = f"Please enter a soldier name ('R' to return): "
 
     # Request soldier name from the user
     while True:
-        soldier_id = input(f"Please enter {soldier_name}'s ID: ").strip()
+        soldier_name = input(question).strip()
+        if not soldier_name:
+            print("Soldier name cannot be empty. Please try again.")
+            continue
+        elif soldier_name in {'R','r'}:
+            return None
+        else:
+            break
+
+    # Request soldier name from the user
+    while True:
+        question = f"Please enter {soldier_name}'s ID: "
+        soldier_id = input(question).strip()
         if not soldier_id:
             print("Soldier ID cannot be empty. Please try again.")
         elif not is_positive_integer(soldier_id):
             print("Soldier ID has to be a positive number. Please try again.")
         else:
             break
+
     # Add data to the dictionary
     data["FullName"] = soldier_name
     data["SoldierID"] = soldier_id
@@ -212,34 +121,32 @@ def add_Soldier_questions(team_name):
     questions("Role","add","Soldier",data)
 
     #add soldier's team
-    if not team_name:
-        data["TeamID"] = questions("Team","add",soldier_name)[0]
-    else:
+    if team_name:
         data["TeamID"] = get_primary_key_val_by_unique_column_val("Team",team_name)
+    else:
+        data["TeamID"] = questions("Team","add",soldier_name)[0]
+
     soldier_id = add_record("Soldier",data)
     questions("TimeRange","add","Soldier",data)
     return soldier_id
 
 def add_Role_questions(table,table_data):
     if table == "Soldier":
-        while True:
-            has_role = input(f"Does {table_data['FullName']} has a Role? (Y/N): ")
-            if has_role in {'y', 'Y', 'n', 'N'}:
-                break
-            else:
-                print("Invalid input! Please enter Y or N.")
+        question = f"add {table_data['FullName']} a role"
+        has_role = yes_no_question(question)
 
-        if has_role == 'Y' or has_role == 'y':
-            print(f"Enter {table_data['FullName']}'s roles one by one, when you finish enter 'N'.")
+        if has_role:
             while True:
-                role_name = input(f"{table_data['FullName']}'s role ('N' to end): ")
+                role_name = input(f"{table_data['FullName']}'s role: ")
                 if not role_name:
                     print("Role name cannot be empty. Please try again.")
                     continue
-                if role_name == 'n' or role_name == 'N':
-                    break
                 table_data["RoleID"] = add_record("Role", {"RoleName": role_name})
                 questions("SoldierRole","add",table_data)
+                question = f"add {table_data['FullName']} another role"
+                another_role = yes_no_question(question)
+                if not another_role:
+                    break
     elif table == "TemporaryTask" or table == "RecurringTask":
         return
 
