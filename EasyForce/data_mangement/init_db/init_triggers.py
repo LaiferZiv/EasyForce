@@ -98,39 +98,6 @@ def init_triggers():
         END;
         """)
 
-        # 4) Validate TaskPeriod References
-        cursor.execute("""
-        CREATE TRIGGER IF NOT EXISTS validate_taskperiod_reference_insert
-        BEFORE INSERT ON TaskPeriod
-        FOR EACH ROW
-        BEGIN
-            SELECT CASE
-                WHEN NEW.TaskType = 'TemporaryTask'
-                     AND (SELECT COUNT(*) FROM TemporaryTask WHERE TaskID = NEW.TaskID) = 0 THEN
-                    RAISE(ABORT, 'TaskID does not exist in TemporaryTask table')
-                WHEN NEW.TaskType = 'RecurringTask'
-                     AND (SELECT COUNT(*) FROM RecurringTask WHERE TaskID = NEW.TaskID) = 0 THEN
-                    RAISE(ABORT, 'TaskID does not exist in RecurringTask table')
-            END;
-        END;
-        """)
-
-        cursor.execute("""
-        CREATE TRIGGER IF NOT EXISTS validate_taskperiod_reference_update
-        BEFORE UPDATE ON TaskPeriod
-        FOR EACH ROW
-        BEGIN
-            SELECT CASE
-                WHEN NEW.TaskType = 'TemporaryTask'
-                     AND (SELECT COUNT(*) FROM TemporaryTask WHERE TaskID = NEW.TaskID) = 0 THEN
-                    RAISE(ABORT, 'TaskID does not exist in TemporaryTask table')
-                WHEN NEW.TaskType = 'RecurringTask'
-                     AND (SELECT COUNT(*) FROM RecurringTask WHERE TaskID = NEW.TaskID) = 0 THEN
-                    RAISE(ABORT, 'TaskID does not exist in RecurringTask table')
-            END;
-        END;
-        """)
-
         # 5) Validate TaskRole References
         cursor.execute("""
         CREATE TRIGGER IF NOT EXISTS validate_taskrole_reference_insert

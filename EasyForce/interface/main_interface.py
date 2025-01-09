@@ -25,7 +25,7 @@ def menu():
             if choice in entity_actions:
                 entity = extract_match_from_text(choice,entities)
                 entity_actions = [f"{action} a {entity.lower()}" for action in actions]
-                choice = display_question_and_get_answer("",entity_actions)
+                choice = display_question_and_get_answer("",entity_actions,previous_question=True)
                 if choice == "Return":
                     break
                 action = extract_match_from_text(choice,actions)
@@ -44,8 +44,6 @@ def menu():
             elif choice == "Display all tables":
                 display_all_tables()
                 break
-            elif choice == "Exit":
+            else: # choice == "Exit":
                 print("Goodbye!")
                 sys.exit(0)
-            else:
-                print("Invalid choice. Please try again.")
