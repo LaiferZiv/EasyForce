@@ -50,29 +50,29 @@ def questions(table, action, *args):
     Returns:
         The return value of the called function, or None if the table/action combination is invalid.
     """
-    from interface.user_questions_management.add_questions.add_entities import (
+    from EasyForce.interface.user_questions_management.add_questions.add_entities import (
         add_Soldier_questions, add_Team_questions, add_TemporaryTask_questions,
         add_RecurringTask_questions, add_Role_questions,add_TimeRange_questions
     )
-    from interface.user_questions_management.add_questions.add_relationships import (
+    from EasyForce.interface.user_questions_management.add_questions.add_relationships import (
         add_SoldierRole_questions, add_Presence_questions, add_TaskPeriod_questions,
         add_TaskRole_questions, add_CurrentTaskAssignment_questions, add_TaskHistory_questions
     )
-    from interface.user_questions_management.update_questions.update_entities import (
+    from EasyForce.interface.user_questions_management.update_questions.update_entities import (
         update_Soldier_questions, update_Team_questions, update_TemporaryTask_questions,
         update_RecurringTask_questions, update_Role_questions, update_SoldierRole_questions,
         update_Presence_questions, update_TaskPeriod_questions, update_TaskRole_questions,
         update_CurrentTaskAssignment_questions, update_TaskHistory_questions,
         update_TimeRange_questions
     )
-    from interface.user_questions_management.delete_questions.delete_entities import (
+    from EasyForce.interface.user_questions_management.delete_questions.delete_entities import (
         delete_Soldier_questions, delete_Team_questions, delete_TemporaryTask_questions,
         delete_RecurringTask_questions, delete_Role_questions, delete_SoldierRole_questions,
         delete_Presence_questions, delete_TaskPeriod_questions, delete_TaskRole_questions,
         delete_CurrentTaskAssignment_questions, delete_TaskHistory_questions,
         delete_TimeRange_questions
     )
-    from interface.user_questions_management.general_questions import define_task_type
+    from EasyForce.interface.user_questions_management.general_questions import define_task_type,display_table_questions
 
     # Mapping of actions to functions for each table
     actions_mapping = {
@@ -138,6 +138,9 @@ def questions(table, action, *args):
         },
         "TaskType":{
             "define":define_task_type
+        },
+        "Display":{
+            "table": display_table_questions
         }
     }
 
@@ -145,10 +148,54 @@ def questions(table, action, *args):
 
     # Check if the provided table name exists in the table_names dictionary,
     # and if the requested action exists in our actions_mapping.
-    if table in {*table_names.values(), "TaskType"} and action in {*actions_mapping.get(table, {}), "define"}:
+    if table in {*table_names.values(), "TaskType","Display"} and action in {*actions_mapping.get(table, {}), "define","table"}:
         func = actions_mapping[table][action]
         # Call the function with the additional arguments and return its result
         return func(*args)
     else:
         print(f"Invalid table or action: table={table}, action={action}")
         return None
+
+def display_question_and_get_answer(question, options):
+    """
+    Displays a question with its options, gets user input, and returns the selected option number.
+
+    Args:
+        question (str): The question to display.
+        options (list): A list of possible answers.
+
+    Returns:
+        str: answer.
+    """
+    print(question)
+    for i, option in enumerate(options, 1):
+        print(f"{i}. {option}")
+
+    while True:
+        try:
+            choice = int(input("Enter the number of your choice: ").strip())
+            if 1 <= choice <= len(options):
+                return options[choice-1]
+            else:
+                print("Invalid choice. Please select a valid option.")
+        except ValueError:
+            print("Please enter a valid number.")
+
+def extract_match_from_text(selected_text, candidates):
+    """
+    Extracts a matching value from a list of candidates based on the selected text.
+
+    Args:
+        selected_text (str): The full text from which to extract a match.
+        candidates (list): A list of possible values to match against.
+
+    Returns:
+        str: The first matching candidate found in the selected text.
+
+    Raises:
+        ValueError: If no matching candidate is found in the selected text.
+    """
+    for candidate in candidates:
+        if candidate.lower() in selected_text.lower():
+            return candidate
+    raise ValueError("No matching candidate found in the selected text.")

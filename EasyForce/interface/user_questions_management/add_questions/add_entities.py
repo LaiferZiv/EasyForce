@@ -167,6 +167,7 @@ def add_Team_questions(soldier_name = "the "):
 
     data["TeamName"] = team_name
     team_id = add_record("Team", data)
+    print(f"TeamID is {team_id}")
     team_primary_columns = get_primary_key_column_names("Team")
     team_name = get_column_value_by_primary_key("Team","TeamName",team_primary_columns,team_id)
     if not by_soldier:
@@ -246,11 +247,14 @@ def add_TemporaryTask_questions():
     data = {}
 
     # Request task name from the user
-    task_name = input("Please enter the temporary task name: ").strip()
-
-    if not task_name:
-        print("Task name cannot be empty. Please try again.")
-        return None
+    while True:
+        task_name = input("Please enter the temporary task name ('R' to return): ").strip()
+        if not task_name:
+            print("Task name cannot be empty. Please try again.")
+        elif task_name in {'r','R'}:
+            return None
+        else:
+            break
 
     # Request task reputation (good or bad) from the user
     while True:
@@ -259,6 +263,7 @@ def add_TemporaryTask_questions():
             print("Task reputation has to be 'good' or 'bad' or 'none'. Please try again.")
         else:
             break
+
     while True:
         task_active = input("Does it active? enter 'y' or 'n' (yes/no): ").strip()
         if not ( task_active == 'y' or task_active == 'n') :
