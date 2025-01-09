@@ -72,12 +72,18 @@ def init_triggers():
         FOR EACH ROW
         BEGIN
             SELECT CASE
-                WHEN NEW.SoldierOrTeamType = 'Soldier'
-                     AND (SELECT COUNT(*) FROM Soldier WHERE SoldierID = NEW.SoldierOrTeamID) = 0 THEN
-                    RAISE(ABORT, 'SoldierOrTeamID does not exist in Soldier table')
-                WHEN NEW.SoldierOrTeamType = 'Team'
-                     AND (SELECT COUNT(*) FROM Team WHERE TeamID = NEW.SoldierOrTeamID) = 0 THEN
-                    RAISE(ABORT, 'SoldierOrTeamID does not exist in Team table')
+                WHEN NEW.SoldierTeamTaskType = 'Soldier'
+                     AND (SELECT COUNT(*) FROM Soldier WHERE SoldierID = NEW.SoldierTeamTaskID) = 0 THEN
+                    RAISE(ABORT, 'SoldierTeamTaskID does not exist in Soldier table')
+                WHEN NEW.SoldierTeamTaskType = 'Team'
+                     AND (SELECT COUNT(*) FROM Team WHERE TeamID = NEW.SoldierTeamTaskID) = 0 THEN
+                    RAISE(ABORT, 'SoldierTeamTaskID does not exist in Team table')
+                WHEN NEW.SoldierTeamTaskType = 'RecurringTask'
+                     AND (SELECT COUNT(*) FROM RecurringTask WHERE TaskID = NEW.SoldierTeamTaskID) = 0 THEN
+                    RAISE(ABORT, 'SoldierTeamTaskID does not exist in RecurringTask table')
+                WHEN NEW.SoldierTeamTaskType = 'TemporaryTask'
+                     AND (SELECT COUNT(*) FROM TemporaryTask WHERE TaskID = NEW.SoldierTeamTaskID) = 0 THEN
+                    RAISE(ABORT, 'SoldierTeamTaskID does not exist in TemporaryTask table')
             END;
         END;
         """)
@@ -88,12 +94,18 @@ def init_triggers():
         FOR EACH ROW
         BEGIN
             SELECT CASE
-                WHEN NEW.SoldierOrTeamType = 'Soldier'
-                     AND (SELECT COUNT(*) FROM Soldier WHERE SoldierID = NEW.SoldierOrTeamID) = 0 THEN
-                    RAISE(ABORT, 'SoldierOrTeamID does not exist in Soldier table')
-                WHEN NEW.SoldierOrTeamType = 'Team'
-                     AND (SELECT COUNT(*) FROM Team WHERE TeamID = NEW.SoldierOrTeamID) = 0 THEN
-                    RAISE(ABORT, 'SoldierOrTeamID does not exist in Team table')
+                WHEN NEW.SoldierTeamTaskType = 'Soldier'
+                     AND (SELECT COUNT(*) FROM Soldier WHERE SoldierID = NEW.SoldierTeamTaskID) = 0 THEN
+                    RAISE(ABORT, 'SoldierTeamTaskID does not exist in Soldier table')
+                WHEN NEW.SoldierTeamTaskType = 'Team'
+                     AND (SELECT COUNT(*) FROM Team WHERE TeamID = NEW.SoldierTeamTaskID) = 0 THEN
+                    RAISE(ABORT, 'SoldierTeamTaskID does not exist in Team table')
+                WHEN NEW.SoldierTeamTaskType = 'RecurringTask'
+                     AND (SELECT COUNT(*) FROM RecurringTask WHERE TaskID = NEW.SoldierTeamTaskID) = 0 THEN
+                    RAISE(ABORT, 'SoldierTeamTaskID does not exist in RecurringTask table')
+                WHEN NEW.SoldierTeamTaskType = 'TemporaryTask'
+                     AND (SELECT COUNT(*) FROM TemporaryTask WHERE TaskID = NEW.SoldierTeamTaskID) = 0 THEN
+                    RAISE(ABORT, 'SoldierTeamTaskID does not exist in TemporaryTask table')
             END;
         END;
         """)
@@ -188,31 +200,6 @@ def init_triggers():
         cursor.execute("""
         CREATE TRIGGER IF NOT EXISTS validate_taskhistory_reference_insert
         BEFORE INSERT ON TaskHistory
-        FOR EACH ROW
-        BEGIN
-            SELECT CASE
-                WHEN NEW.TaskType = 'TemporaryTask'
-                     AND (SELECT COUNT(*) FROM TemporaryTask WHERE TaskID = NEW.TaskID) = 0 THEN
-                    RAISE(ABORT, 'TaskID does not exist in TemporaryTask table')
-                WHEN NEW.TaskType = 'RecurringTask'
-                     AND (SELECT COUNT(*) FROM RecurringTask WHERE TaskID = NEW.TaskID) = 0 THEN
-                    RAISE(ABORT, 'TaskID does not exist in RecurringTask table')
-            END;
-
-            SELECT CASE
-                WHEN NEW.SoldierOrTeamType = 'Soldier'
-                     AND (SELECT COUNT(*) FROM Soldier WHERE SoldierID = NEW.SoldierOrTeamID) = 0 THEN
-                    RAISE(ABORT, 'SoldierOrTeamID does not exist in Soldier table')
-                WHEN NEW.SoldierOrTeamType = 'Team'
-                     AND (SELECT COUNT(*) FROM Team WHERE TeamID = NEW.SoldierOrTeamID) = 0 THEN
-                    RAISE(ABORT, 'SoldierOrTeamID does not exist in Team table')
-            END;
-        END;
-        """)
-
-        cursor.execute("""
-        CREATE TRIGGER IF NOT EXISTS validate_taskhistory_reference_update
-        BEFORE UPDATE ON TaskHistory
         FOR EACH ROW
         BEGIN
             SELECT CASE

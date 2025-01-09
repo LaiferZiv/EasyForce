@@ -153,9 +153,8 @@ def get_primary_key_column_names(table):
         "Role": ("RoleID",),
         "TemporaryTask": ("TaskID",),
         "RecurringTask": ("TaskID",),
-        "Presence": ("SoldierOrTeamType", "SoldierOrTeamID", "TimeID"),
+        "Presence": ("SoldierTeamTaskType", "SoldierTeamTaskID", "TimeID"),
         "SoldierRole": ("SoldierID", "RoleID"),
-        "TaskPeriod": ("TaskType", "TaskID", "TimeID"),
         "TaskRole": ("TaskType", "TaskID", "RoleID"),
         "CurrentTaskAssignment": ("TaskType", "TaskID", "SoldierOrTeamType", "SoldierOrTeamID", "TimeID"),
         "TaskHistory": ("HistoryID",),
@@ -170,7 +169,7 @@ def get_unique_column_name(table: str):
 
     # If the table has only a composite key (like SoldierRole),
     # and no single unique column, just return None immediately.
-    if table in ("SoldierRole", "Presence", "TaskRole", "TaskPeriod"):
+    if table in ("SoldierRole", "Presence", "TaskRole"):
         return None
 
     database_name = 'my_database.db'

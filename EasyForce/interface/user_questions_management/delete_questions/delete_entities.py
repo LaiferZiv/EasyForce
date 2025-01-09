@@ -26,9 +26,6 @@ def delete_Presence_questions():
 def delete_SoldierRole_questions():
     return
 
-def delete_TaskPeriod_questions():
-    return
-
 def delete_TaskRole_questions():
     return
 

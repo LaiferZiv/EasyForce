@@ -17,11 +17,11 @@ def init_relationships():
         # 1) Presence
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS Presence (
-            SoldierOrTeamType TEXT NOT NULL CHECK(SoldierOrTeamType IN ('Soldier', 'Team')),
-            SoldierOrTeamID INTEGER NOT NULL,
+            SoldierTeamTaskType TEXT NOT NULL CHECK(SoldierTeamTaskType IN ('Soldier', 'Team','RecurringTask','TemporaryTask')),
+            SoldierTeamTaskID INTEGER NOT NULL,
             TimeID INTEGER NOT NULL,
-            isPresence INTEGER NOT NULL DEFAULT 1, -- 1 is presence, 0 is not presence
-            PRIMARY KEY (SoldierOrTeamType, SoldierOrTeamID, TimeID),
+            isActive INTEGER NOT NULL DEFAULT 1, -- 1 is presence, 0 is not presence
+            PRIMARY KEY (SoldierTeamTaskType, SoldierTeamTaskID, TimeID),
             FOREIGN KEY (TimeID) REFERENCES TimeRange(TimeID) ON DELETE CASCADE ON UPDATE CASCADE
         );
         """)
@@ -70,7 +70,7 @@ def init_relationships():
             TaskID INTEGER NOT NULL,
             SoldierOrTeamType TEXT NOT NULL CHECK(SoldierOrTeamType IN ('Soldier', 'Team')),
             SoldierOrTeamID INTEGER NOT NULL,
-            TaskReputation TEXT NOT NULL CHECK(TaskReputation IN ('good', 'bad', 'none')),
+            TaskReputation TEXT NOT NULL CHECK(TaskReputation IN ('Good', 'Bad', 'None')),
             TimeID INTEGER NOT NULL,
             CompletionStatus TEXT NOT NULL CHECK(CompletionStatus IN ('Canceled', 'Completed', 'Ongoing')),
 

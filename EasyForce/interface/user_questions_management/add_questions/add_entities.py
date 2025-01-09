@@ -1,7 +1,7 @@
 from datetime import timedelta
 from EasyForce.data_mangement.data_modification import add_record
 from EasyForce.common.utils import questions, is_positive_integer, is_number, \
-    yes_no_question,get_datetime_input
+    yes_no_question, get_datetime_input, display_question_and_get_answer
 from EasyForce.data_mangement.read_db import get_primary_key_column_names,\
     get_column_value_by_primary_key,get_primary_key_val_by_unique_column_val
 
@@ -10,6 +10,7 @@ def add_TimeRange_questions(table, table_data):
     """
     Adds time ranges for a soldier's presence (in/out) at the base
     """
+    ################## I need to add team option################################
     def add_time_ranges(pos = ""):
         time_format = "time (YYYY-MM-DD HH:MM) or press Enter"
         is_presence = 1
@@ -35,14 +36,15 @@ def add_TimeRange_questions(table, table_data):
                 "StartDateTime" : start_dt,
                 "EndDateTime" : end_dt
                 }
-                time_range_id = add_record("TimeRange",time_range_data)
+                time_range_id = add_record("TimeRange",time_range_data)[0]
                 presence_data = {
+                "SoldierTeamTaskType" : table,
+                "SoldierTeamTaskID" : table_data["SoldierID"] if table == "Soldier" else table_data["TaskID"],
                 "TimeID" : time_range_id,
-                "SoldierOrTeamType" : table,
-                "SoldierOrTeamID" : table_data["SoldierID"] if table == "Soldier" else table_data["TeamID"],
-                "isPresence" : is_presence if table == "Soldier" else 1
+                "isActive" : is_presence if table == "Soldier" else 1
                 }
-                questions("Presence" if table == "Soldier" else "TaskPeriod","add",presence_data)
+                print(presence_data)
+                questions("Presence","add",presence_data)
 
                 if not yes_no_question(more_question):
                     break
@@ -164,35 +166,29 @@ def add_TemporaryTask_questions():
             break
 
     # Request task reputation (good or bad) from the user
-    while True:
-        task_rep = input("Please enter the task reputation (good/bad/none): ").strip()
-        if not ( task_rep == 'good' or task_rep == 'bad' or task_rep == 'none') :
-            print("Task reputation has to be 'good' or 'bad' or 'none'. Please try again.")
-        else:
-            break
+    question = "Please enter the task reputation:"
+    options = ["Good","Bad","None"]
+    task_rep = display_question_and_get_answer(question,options)
 
-    while True:
-        task_active = input("Does it active? enter 'y' or 'n' (yes/no): ").strip()
-        if not ( task_active == 'y' or task_active == 'n') :
-            print("you have to fill either y or n. Please try again.")
-        else:
-            break
     # Add data to the dictionary
     data["TaskName"] = task_name
     data["TaskReputation"] = task_rep
-    data["isActive"] = task_active
-
-    return data
+    data["TaskID"] = add_record("TemporaryTask",data)[0]
+    questions("TimeRange","add","TemporaryTask",data)
+    return data["TaskID"]
 
 def add_RecurringTask_questions():
     data = {}
 
     # Request task name from the user
-    task_name = input("Please enter the recurring task name: ").strip()
-
-    if not task_name:
+    while True:
+        task_name = input("Please enter the recurring task name ('R' to return): ").strip()
+        if task_name:
+            break
+        elif task_name in {'r','R'}:
+            return None
         print("Task name cannot be empty. Please try again.")
-        return None
+
 
     # Request a shift duration from the user
     while True:
@@ -203,6 +199,7 @@ def add_RecurringTask_questions():
             print("A shift duration has to be a positive number. Please try again.")
         else:
             break
+
     # Request a Required personnel from the user
     while True:
         amount = input("Please enter the required personnel for the task: ").strip()
@@ -215,9 +212,9 @@ def add_RecurringTask_questions():
 
     # Add data to the dictionary
     data["TaskName"] = task_name
-    data["ShiftDurationInMinutes"] = float(task_shift) * 60
-    data["RequiredPersonnel"] = float(amount)
+    data["ShiftDurationInMinutes"] = int(float(task_shift) * 60)
+    data["RequiredPersonnel"] = int(amount)
 
-
-
-    return data
+    data["TaskID"] = add_record("RecurringTask",data)[0]
+    questions("TimeRange","add","RecurringTask",data)
+    return data["TaskID"]

@@ -26,9 +26,6 @@ def update_Presence_questions():
 def update_SoldierRole_questions():
     return
 
-def update_TaskPeriod_questions():
-    return
-
 def update_TaskRole_questions():
     return
 

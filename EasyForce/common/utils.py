@@ -31,10 +31,9 @@ def initialize_table_names():
         6: "RecurringTask",
         7: "Presence",
         8: "SoldierRole",
-        9: "TaskPeriod",
-        10: "TaskRole",
-        11: "CurrentTaskAssignment",
-        12: "TaskHistory"
+        9: "TaskRole",
+        10: "CurrentTaskAssignment",
+        11: "TaskHistory"
     }
     return table_names
 

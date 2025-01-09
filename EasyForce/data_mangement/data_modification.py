@@ -1,5 +1,6 @@
 import sqlite3
 from EasyForce.data_mangement.read_db import get_primary_key_column_names,get_unique_column_name
+from EasyForce.common.config import DB_PATH
 
 def add_record(table, data):
     """
@@ -28,7 +29,7 @@ def add_record(table, data):
               or if the record already exists (by unique or full-PK check).
             - None if the insert failed or if no primary key columns were found.
     """
-    database_name = 'my_database.db'
+    database_name = DB_PATH
 
     # 1. If no data is provided, return None
     if not data:

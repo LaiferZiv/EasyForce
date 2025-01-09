@@ -54,8 +54,7 @@ def init_entities():
         CREATE TABLE IF NOT EXISTS TemporaryTask(
             TaskID INTEGER PRIMARY KEY AUTOINCREMENT,
             TaskName TEXT NOT NULL UNIQUE,
-            TaskReputation TEXT NOT NULL CHECK(TaskReputation IN ('good', 'bad', 'none')),
-            isActive INTEGER NOT NULL DEFAULT 1
+            TaskReputation TEXT NOT NULL CHECK(TaskReputation IN ('Good', 'Bad', 'None'))
         );
         """)
 
