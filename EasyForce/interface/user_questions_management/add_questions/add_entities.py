@@ -1,9 +1,10 @@
 from datetime import timedelta
 from EasyForce.data_mangement.data_modification import add_record
 from EasyForce.common.utils import questions, is_positive_integer, is_number, \
-    yes_no_question, get_datetime_input, display_question_and_get_answer
+    yes_no_question, get_datetime_input, ask_closed_ended_question
 from EasyForce.data_mangement.read_db import get_primary_key_column_names,\
     get_column_value_by_primary_key,get_primary_key_val_by_unique_column_val
+from EasyForce.interface.user_questions_management.general_questions import ask_open_ended_question,ask_for_name
 
 
 def add_TimeRange_questions(table, table_data):
@@ -87,7 +88,7 @@ def add_Team_questions(soldier_name = None):
                 break
     return team_id
 
-def add_Soldier_questions(team_name):
+def add_Soldier_questions(team_name = None):
     data = {}
     question = f"Please enter the soldier name ('R' to return): "
     if team_name:
@@ -152,69 +153,51 @@ def add_Role_questions(table,table_data):
     elif table == "TemporaryTask" or table == "RecurringTask":
         return
 
-def add_TemporaryTask_questions():
+def add_Task_questions(table):
     data = {}
+    task_rep = shift_dur = amount = 0
 
-    # Request task name from the user
-    while True:
-        task_name = input("Please enter the temporary task name ('R' to return): ").strip()
-        if not task_name:
-            print("Task name cannot be empty. Please try again.")
-        elif task_name in {'r','R'}:
-            return None
-        else:
-            break
+    #Request task name from the user
+    task_name = "temporary " if table == "TemporaryTask" else "recurring"
+    task_name += "task"
+    task_name = ask_for_name(task_name)
 
-    # Request task reputation (good or bad) from the user
-    question = "Please enter the task reputation:"
-    options = ["Good","Bad","None"]
-    task_rep = display_question_and_get_answer(question,options)
+    # Request temporarily task reputation from the user
+    if table == "TemporaryTask":
+        question = "Please enter the task reputation:"
+        options = ["Good","Bad","None"]
+        task_rep = ask_closed_ended_question(question,options)
+    # Request recurring task shift duration and required personal from the user
+    else:
+        question = "Please enter a shift duration (in hours): "
+        empty_name = "A shift"
+        while True:
+            shift_dur = ask_open_ended_question(question,empty_name)
+            if not is_number(shift_dur):
+                print("A shift duration has to be a number. Please try again.")
+            elif float(shift_dur) <= 0:
+                print("A shift duration has to be a positive number. Please try again.")
+            else:
+                break
+        question = "Please enter the required personnel for the task: "
+        empty_name = "A required"
+        while True:
+            amount = ask_open_ended_question(question,empty_name)
+            if not is_number(amount):
+                print("A required personnel has to be a number. Please try again.")
+            elif float(amount) <= 0:
+                print("A required personnel has to be a positive number. Please try again.")
+            else:
+                break
+
 
     # Add data to the dictionary
     data["TaskName"] = task_name
-    data["TaskReputation"] = task_rep
     data["TaskID"] = add_record("TemporaryTask",data)[0]
-    questions("TimeRange","add","TemporaryTask",data)
-    return data["TaskID"]
-
-def add_RecurringTask_questions():
-    data = {}
-
-    # Request task name from the user
-    while True:
-        task_name = input("Please enter the recurring task name ('R' to return): ").strip()
-        if task_name:
-            break
-        elif task_name in {'r','R'}:
-            return None
-        print("Task name cannot be empty. Please try again.")
-
-
-    # Request a shift duration from the user
-    while True:
-        task_shift = input("Please enter a shift duration (in hours): ").strip()
-        if not is_number(task_shift):
-            print("A shift duration has to be a number. Please try again.")
-        elif float(task_shift) <= 0:
-            print("A shift duration has to be a positive number. Please try again.")
-        else:
-            break
-
-    # Request a Required personnel from the user
-    while True:
-        amount = input("Please enter the required personnel for the task: ").strip()
-        if not is_number(amount):
-            print("A required personnel has to be a number. Please try again.")
-        elif float(amount) <= 0:
-            print("A required personnel has to be a positive number. Please try again.")
-        else:
-            break
-
-    # Add data to the dictionary
-    data["TaskName"] = task_name
-    data["ShiftDurationInMinutes"] = int(float(task_shift) * 60)
-    data["RequiredPersonnel"] = int(amount)
-
-    data["TaskID"] = add_record("RecurringTask",data)[0]
-    questions("TimeRange","add","RecurringTask",data)
+    if table == "TemporaryTask":
+        data["TaskReputation"] = task_rep
+    else:
+        data["ShiftDurationInMinutes"] = int(float(shift_dur) * 60)
+        data["RequiredPersonnel"] = int(amount)
+    questions("TimeRange","add",table,data)
     return data["TaskID"]

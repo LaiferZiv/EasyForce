@@ -12,11 +12,9 @@ def delete_Soldier_questions():
 def delete_Role_questions():
     return
 
-def delete_TemporaryTask_questions():
+def delete_Task_questions():
     return
 
-def delete_RecurringTask_questions():
-    return
 
 ### Relationships ###
 

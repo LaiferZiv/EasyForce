@@ -1,5 +1,5 @@
 import sys
-from EasyForce.common.utils import questions,display_question_and_get_answer,extract_match_from_text
+from EasyForce.common.utils import questions,ask_closed_ended_question,extract_match_from_text
 from EasyForce.data_mangement.read_db import display_all_tables
 from EasyForce.data_processing.schedule_logic import schedule_shifts
 from EasyForce.interface.user_questions_management.general_questions import define_task_type
@@ -19,13 +19,13 @@ def menu():
             "Exit"
         ]
         options = entity_actions + other_options
-        choice = display_question_and_get_answer(question,options)
+        choice = ask_closed_ended_question(question,options)
 
         while True:
             if choice in entity_actions:
                 entity = extract_match_from_text(choice,entities)
                 entity_actions = [f"{action} a {entity.lower()}" for action in actions]
-                choice = display_question_and_get_answer("",entity_actions,previous_question=True)
+                choice = ask_closed_ended_question("",entity_actions,previous_question=True)
                 if choice == "Return":
                     break
                 action = extract_match_from_text(choice,actions)

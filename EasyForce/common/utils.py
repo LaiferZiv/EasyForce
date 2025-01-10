@@ -50,23 +50,21 @@ def questions(table, action, *args):
         The return value of the called function, or None if the table/action combination is invalid.
     """
     from EasyForce.interface.user_questions_management.add_questions.add_entities import (
-        add_Soldier_questions, add_Team_questions, add_TemporaryTask_questions,
-        add_RecurringTask_questions, add_Role_questions,add_TimeRange_questions
+        add_Soldier_questions, add_Team_questions, add_Task_questions, add_Role_questions,add_TimeRange_questions
     )
     from EasyForce.interface.user_questions_management.add_questions.add_relationships import (
         add_SoldierRole_questions, add_Presence_questions,
         add_TaskRole_questions, add_CurrentTaskAssignment_questions, add_TaskHistory_questions
     )
     from EasyForce.interface.user_questions_management.update_questions.update_entities import (
-        update_Soldier_questions, update_Team_questions, update_TemporaryTask_questions,
-        update_RecurringTask_questions, update_Role_questions, update_SoldierRole_questions,
+        update_Soldier_questions, update_Team_questions,
+        update_Task_questions, update_Role_questions, update_SoldierRole_questions,
         update_Presence_questions, update_TaskRole_questions,
         update_CurrentTaskAssignment_questions, update_TaskHistory_questions,
         update_TimeRange_questions
     )
     from EasyForce.interface.user_questions_management.delete_questions.delete_entities import (
-        delete_Soldier_questions, delete_Team_questions, delete_TemporaryTask_questions,
-        delete_RecurringTask_questions, delete_Role_questions, delete_SoldierRole_questions,
+        delete_Soldier_questions, delete_Team_questions, delete_Task_questions, delete_Role_questions, delete_SoldierRole_questions,
         delete_Presence_questions, delete_TaskRole_questions,
         delete_CurrentTaskAssignment_questions, delete_TaskHistory_questions,
         delete_TimeRange_questions
@@ -86,14 +84,14 @@ def questions(table, action, *args):
             "delete": delete_Team_questions,
         },
         "TemporaryTask": {
-            "add": add_TemporaryTask_questions,
-            "update": update_TemporaryTask_questions,
-            "delete": delete_TemporaryTask_questions,
+            "add": add_Task_questions,
+            "update": update_Task_questions,
+            "delete": delete_Task_questions,
         },
         "RecurringTask": {
-            "add": add_RecurringTask_questions,
-            "update": update_RecurringTask_questions,
-            "delete": delete_RecurringTask_questions,
+            "add": add_Task_questions,
+            "update": update_Task_questions,
+            "delete": delete_Task_questions,
         },
         "Role": {
             "add": add_Role_questions,
@@ -139,7 +137,8 @@ def questions(table, action, *args):
     }
 
     table_names = initialize_table_names()
-
+    if table in {"TemporaryTask","RecurringTask"}:
+        args = table
     # Check if the provided table name exists in the table_names dictionary,
     # and if the requested action exists in our actions_mapping.
     if table in {*table_names.values(), "TaskType","Display"} and action in {*actions_mapping.get(table, {}), "define","table"}:
@@ -150,7 +149,7 @@ def questions(table, action, *args):
         print(f"Invalid table or action: table={table}, action={action}")
         return None
 
-def display_question_and_get_answer(question, options, previous_question = False):
+def ask_closed_ended_question(question, options, previous_question = False):
     """
     Displays a question with its options, gets user input, and returns the selected option number.
 
@@ -181,7 +180,7 @@ def display_question_and_get_answer(question, options, previous_question = False
 def yes_no_question(question):
     question = f"Would you like to {question} ?"
     options = ["Yes","No"]
-    if "Yes" == display_question_and_get_answer(question,options):
+    if "Yes" == ask_closed_ended_question(question,options):
         return True
     return False
 

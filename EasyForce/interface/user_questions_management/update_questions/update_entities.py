@@ -12,10 +12,7 @@ def update_Soldier_questions():
 def update_Role_questions():
     return
 
-def update_TemporaryTask_questions():
-    return
-
-def update_RecurringTask_questions():
+def update_Task_questions():
     return
 
 ### Relationships ###
