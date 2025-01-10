@@ -1,4 +1,6 @@
 import sqlite3
+
+from EasyForce.common.config import DB_PATH
 from EasyForce.common.utils import initialize_table_names
 
 def display_table(table_name):
@@ -101,7 +103,7 @@ def get_column_value_by_primary_key(table, column, primary_key_columns, primary_
     Returns:
         The value of the specified column if found, or None if no matching record exists.
     """
-    database_name = 'my_database.db'
+    database_name = DB_PATH
     if len(primary_key_columns) != len(primary_key_values):
         print("Error: The number of PK columns does not match the number of PK values.")
         return None
@@ -135,33 +137,7 @@ def get_column_value_by_primary_key(table, column, primary_key_columns, primary_
         print(f"An error occurred: {e}")
         return None
 
-def get_primary_key_column_names(table):
-    """
-    Get the primary key column names for a specified table.
-
-    Args:
-        table (str): The name of the table.
-
-    Returns:
-        tuple or None: A tuple of primary key column names if the table exists in the mapping,
-        otherwise None.
-    """
-    primary_keys = {
-        "TimeRange": ("TimeID",),
-        "Team": ("TeamID",),
-        "Soldier": ("SoldierID",),
-        "Role": ("RoleID",),
-        "TemporaryTask": ("TaskID",),
-        "RecurringTask": ("TaskID",),
-        "Presence": ("SoldierTeamTaskType", "SoldierTeamTaskID", "TimeID"),
-        "SoldierRole": ("SoldierID", "RoleID"),
-        "TaskRole": ("TaskType", "TaskID", "RoleID"),
-        "CurrentTaskAssignment": ("TaskType", "TaskID", "SoldierOrTeamType", "SoldierOrTeamID", "TimeID"),
-        "TaskHistory": ("HistoryID",),
-    }
-    return primary_keys[table] if table in primary_keys else None
-
-def get_unique_column_name(table: str):
+def get_unique_column_name(table):
     """
     Returns the name of the column that is defined as UNIQUE in the specified table.
     If no UNIQUE column is found or the table does not exist, returns None.
@@ -207,3 +183,61 @@ def get_unique_column_name(table: str):
     except sqlite3.Error as e:
         print(f"An error occurred: {e}")
         return None
+
+def get_column_values(table, column):
+    """
+    Retrieve all values from a specific column in a table.
+
+    Args:
+        table (str): The name of the table.
+        column (str): The name of the column to retrieve values from.
+
+    Returns:
+        list: A list of values from the specified column, or None if an error occurs or no values exist.
+    """
+    database_name = DB_PATH
+    try:
+        with sqlite3.connect(database_name) as conn:
+            cursor = conn.cursor()
+
+            # Construct the SQL query
+            query = f"SELECT {column} FROM {table};"
+            cursor.execute(query)
+            results = cursor.fetchall()
+
+            if results:
+                # Extract the first element from each row to return a flat list
+                return [row[0] for row in results]
+            else:
+                print(f"No records found in table '{table}' for column '{column}'.")
+                return None
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
+        return None
+
+################ need to rewrite it ################################
+def get_primary_key_column_names(table):
+    """
+    Get the primary key column names for a specified table.
+
+    Args:
+        table (str): The name of the table.
+
+    Returns:
+        tuple or None: A tuple of primary key column names if the table exists in the mapping,
+        otherwise None.
+    """
+    primary_keys = {
+        "TimeRange": ("TimeID",),
+        "Team": ("TeamID",),
+        "Soldier": ("SoldierID",),
+        "Role": ("RoleID",),
+        "TemporaryTask": ("TaskID",),
+        "RecurringTask": ("TaskID",),
+        "Presence": ("SoldierTeamTaskType", "SoldierTeamTaskID", "TimeID"),
+        "SoldierRole": ("SoldierID", "RoleID"),
+        "TaskRole": ("TaskType", "TaskID", "RoleID"),
+        "CurrentTaskAssignment": ("TaskType", "TaskID", "SoldierOrTeamType", "SoldierOrTeamID", "TimeID"),
+        "TaskHistory": ("HistoryID",),
+    }
+    return primary_keys[table] if table in primary_keys else None

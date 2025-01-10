@@ -44,6 +44,7 @@ def init_relationships():
             TaskID INTEGER NOT NULL,
             RoleID INTEGER NOT NULL,
             MinRequiredCount INTEGER NOT NULL,
+            RoleEnforcementType INTEGER NOT NULL DEFAULT 1, -- 1 is must be, 0 is can not be
             PRIMARY KEY (TaskType, TaskID, RoleID),
             FOREIGN KEY(RoleID) REFERENCES Role(RoleID) ON DELETE CASCADE ON UPDATE CASCADE
         );

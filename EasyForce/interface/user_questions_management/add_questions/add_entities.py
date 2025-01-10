@@ -2,8 +2,8 @@ from datetime import timedelta
 from EasyForce.data_mangement.data_modification import add_record
 from EasyForce.common.utils import questions, is_positive_integer, is_number, \
     yes_no_question, get_datetime_input, ask_closed_ended_question
-from EasyForce.data_mangement.read_db import get_primary_key_column_names,\
-    get_column_value_by_primary_key,get_primary_key_val_by_unique_column_val
+from EasyForce.data_mangement.read_db import get_primary_key_column_names, \
+    get_column_value_by_primary_key, get_primary_key_val_by_unique_column_val, get_column_values
 from EasyForce.interface.user_questions_management.general_questions import ask_open_ended_question,ask_for_name
 
 
@@ -136,6 +136,29 @@ def add_Role_questions(table,table_data):
                 if not yes_no_question(another_role):
                     break
     elif table == "TemporaryTask" or table == "RecurringTask":
+        allowed_role_name = []
+        not_allowed_role_name = []
+        question = "add specific roles that must be included in the task"
+        if yes_no_question(question):
+            role_name_list = get_column_values("Role","RoleName")
+            while True:
+                if not role_name_list:
+                    print("There are no roles to choose from")
+                    break
+                question = "Role name:"
+                role_name = ask_closed_ended_question(question,role_name_list)
+                role_name_list.remove(role_name)
+                question = "How many of this role are essential for this task?"
+                ############################################################################################################
+                task_role_data = {
+                    "TaskType" : table,
+                    "TaskID" :table_data["TaskID"],
+                    "RoleID" : get_primary_key_val_by_unique_column_val("Role",role_name),
+                    "MinRequiredCount" :
+                    "RoleEnforcementType" : 1
+                }
+                if not yes_no_question("add another role?"):
+                    break
         return
 
 def add_Task_questions(table):
