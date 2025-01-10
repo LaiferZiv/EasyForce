@@ -63,13 +63,8 @@ def add_Team_questions(soldier_name = None):
     data = {}
 
     # Request team name from the user
-    while True:
-        team_name = input(question).strip()
-        if team_name:
-            break
-        else:
-            print("Team name cannot be empty. Please try again.")
-    if team_name in {'R','r'}:
+    team_name = ask_open_ended_question(question,"Team name",previous_question=True)
+    if not team_name:
         return None
 
     data["TeamName"] = team_name
@@ -95,23 +90,15 @@ def add_Soldier_questions(team_name = None):
         question = f"Please enter a soldier name ('R' to return): "
 
     # Request soldier name from the user
-    while True:
-        soldier_name = input(question).strip()
-        if not soldier_name:
-            print("Soldier name cannot be empty. Please try again.")
-            continue
-        elif soldier_name in {'R','r'}:
-            return None
-        else:
-            break
+    soldier_name = ask_open_ended_question(question,"Soldier name",previous_question=True)
+    if not soldier_name:
+        return None
 
     # Request soldier name from the user
+    question = f"Please enter {soldier_name}'s ID: "
     while True:
-        question = f"Please enter {soldier_name}'s ID: "
-        soldier_id = input(question).strip()
-        if not soldier_id:
-            print("Soldier ID cannot be empty. Please try again.")
-        elif not is_positive_integer(soldier_id):
+        soldier_id = ask_open_ended_question(question,"Soldier ID")
+        if not is_positive_integer(soldier_id):
             print("Soldier ID has to be a positive number. Please try again.")
         else:
             break
@@ -139,16 +126,14 @@ def add_Role_questions(table,table_data):
         has_role = yes_no_question(question)
 
         if has_role:
+            question = f"{table_data['FullName']}'s role:"
+            empty_name = "Role name"
             while True:
-                role_name = input(f"{table_data['FullName']}'s role: ")
-                if not role_name:
-                    print("Role name cannot be empty. Please try again.")
-                    continue
+                role_name = ask_open_ended_question(question,empty_name)
                 table_data["RoleID"] = add_record("Role", {"RoleName": role_name})
                 questions("SoldierRole","add",table_data)
-                question = f"add {table_data['FullName']} another role"
-                another_role = yes_no_question(question)
-                if not another_role:
+                another_role = f"add {table_data['FullName']} another role"
+                if not yes_no_question(another_role):
                     break
     elif table == "TemporaryTask" or table == "RecurringTask":
         return
