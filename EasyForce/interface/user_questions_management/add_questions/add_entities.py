@@ -1,4 +1,5 @@
 from datetime import timedelta
+from EasyForce.common.constants import *
 from EasyForce.data_mangement.data_modification import add_record
 from EasyForce.common.utils import questions, is_positive_integer, is_number, \
     yes_no_question, get_datetime_input, ask_closed_ended_question
@@ -15,7 +16,7 @@ def add_TimeRange_questions(table, table_data):
     def add_time_ranges(pos = ""):
         time_format = "time (YYYY-MM-DD HH:MM) or press Enter"
         is_presence = 1
-        if table == "Soldier":
+        if table == SOLDIER_TABLE:
             question = f"add times when {table_data['FullName']} is {pos} the base"
             is_presence = 1 if pos == "in" else 0
             (start_prompt,end_prompt) = ("arrival","departure") if is_presence else ("departure","return")
@@ -32,25 +33,25 @@ def add_TimeRange_questions(table, table_data):
         if is_active:
             while True:
                 start_dt = get_datetime_input(start_prompt,timedelta(days=0))
-                end_dt = get_datetime_input(end_prompt,timedelta(days=365))
+                end_dt = get_datetime_input(end_prompt,timedelta(days=YEAR))
                 time_range_data = {
                 "StartDateTime" : start_dt,
                 "EndDateTime" : end_dt
                 }
-                time_range_id = add_record("TimeRange",time_range_data)[0]
+                time_range_id = add_record(TIME_RANGE_TABLE,time_range_data)[0]
                 presence_data = {
                 "SoldierTeamTaskType" : table,
-                "SoldierTeamTaskID" : table_data["SoldierID"] if table == "Soldier" else table_data["TaskID"],
+                "SoldierTeamTaskID" : table_data["SoldierID"] if table == SOLDIER_TABLE else table_data["TaskID"],
                 "TimeID" : time_range_id,
-                "isActive" : is_presence if table == "Soldier" else 1
+                "isActive" : is_presence if table == SOLDIER_TABLE else 1
                 }
                 print(presence_data)
-                questions("Presence","add",presence_data)
+                questions(PRESENCE_TABLE,ADD,presence_data)
 
                 if not yes_no_question(more_question):
                     break
 
-    if table == "Soldier":
+    if table == SOLDIER_TABLE:
         add_time_ranges("in")
         add_time_ranges("out")
     else:
@@ -68,15 +69,15 @@ def add_Team_questions(soldier_name = None):
         return None
 
     data["TeamName"] = team_name
-    team_id = add_record("Team", data)
-    team_table_primary_columns = get_primary_key_column_names("Team")
-    team_name = get_column_value_by_primary_key("Team","TeamName",team_table_primary_columns,team_id)
+    team_id = add_record(TEAM_TABLE, data)
+    team_table_primary_columns = get_primary_key_column_names(TEAM_TABLE)
+    team_name = get_column_value_by_primary_key(TEAM_TABLE,"TeamName",team_table_primary_columns,team_id)
     if not soldier_name:
         question = f"add soldiers to {team_name} team"
         while True:
             answer = yes_no_question(question)
             if answer:
-                if not questions("Soldier", "add", team_name):
+                if not questions(SOLDIER_TABLE, ADD, team_name):
                     return team_id
                 question = f"add more soldiers to {team_name} team?"
             else:
@@ -108,20 +109,20 @@ def add_Soldier_questions(team_name = None):
     data["SoldierID"] = soldier_id
 
     #add roles
-    questions("Role","add","Soldier",data)
+    questions(ROLE_TABLE,ADD,SOLDIER_TABLE,data)
 
     #add soldier's team
     if team_name:
-        data["TeamID"] = get_primary_key_val_by_unique_column_val("Team",team_name)
+        data["TeamID"] = get_primary_key_val_by_unique_column_val(TEAM_TABLE,team_name)
     else:
-        data["TeamID"] = questions("Team","add",soldier_name)[0]
+        data["TeamID"] = questions(TEAM_TABLE,ADD,soldier_name)[0]
 
-    soldier_id = add_record("Soldier",data)
-    questions("TimeRange","add","Soldier",data)
+    soldier_id = add_record(SOLDIER_TABLE,data)
+    questions(TIME_RANGE_TABLE,ADD,SOLDIER_TABLE,data)
     return soldier_id
 
 def add_Role_questions(table,table_data):
-    if table == "Soldier":
+    if table == SOLDIER_TABLE:
         question = f"add {table_data['FullName']} a role"
         has_role = yes_no_question(question)
 
@@ -135,30 +136,44 @@ def add_Role_questions(table,table_data):
                 another_role = f"add {table_data['FullName']} another role"
                 if not yes_no_question(another_role):
                     break
-    elif table == "TemporaryTask" or table == "RecurringTask":
-        allowed_role_name = []
-        not_allowed_role_name = []
+    elif table == TEMPORARY_TASK_TABLE or table == RECURRING_TASK_TABLE:
         question = "add specific roles that must be included in the task"
+        role_name_list = get_column_values(ROLE_TABLE, "RoleName")
+        role_enforcement_type = 1
         if yes_no_question(question):
-            role_name_list = get_column_values("Role","RoleName")
             while True:
                 if not role_name_list:
                     print("There are no roles to choose from")
                     break
-                question = "Role name:"
-                role_name = ask_closed_ended_question(question,role_name_list)
+                question_name = "Role name:"
+                role_name = ask_closed_ended_question(question_name,role_name_list)
                 role_name_list.remove(role_name)
-                question = "How many of this role are essential for this task?"
-                ############################################################################################################
+                if question == "add specific roles that must be included in the task":
+                    question_amount = "How many of this role are essential for this task?"
+                    while True:
+                        min_required_count = ask_open_ended_question(question_amount,"An amount")
+                        if is_positive_integer(min_required_count):
+                            min_required_count = int(min_required_count)
+                            break
+                else:
+                    min_required_count = 0
+                    role_enforcement_type = 0
+
                 task_role_data = {
                     "TaskType" : table,
                     "TaskID" :table_data["TaskID"],
-                    "RoleID" : get_primary_key_val_by_unique_column_val("Role",role_name),
-                    "MinRequiredCount" :
-                    "RoleEnforcementType" : 1
+                    "RoleID" : get_primary_key_val_by_unique_column_val(ROLE_TABLE,role_name),
+                    "MinRequiredCount" : min_required_count,
+                    "RoleEnforcementType" : role_enforcement_type
                 }
+                questions(TASK_ROLE_TABLE,ADD,task_role_data)
                 if not yes_no_question("add another role?"):
-                    break
+                    if question == "add specific roles that can't be included in the task":
+                        break
+                    question = "add specific roles that can't be included in the task"
+                    if not yes_no_question(question):
+                        break
+
         return
 
 def add_Task_questions(table):
@@ -166,12 +181,12 @@ def add_Task_questions(table):
     task_rep = shift_dur = amount = 0
 
     #Request task name from the user
-    task_name = "temporary " if table == "TemporaryTask" else "recurring"
+    task_name = "temporary " if table == TEMPORARY_TASK_TABLE else "recurring"
     task_name += "task"
     task_name = ask_for_name(task_name)
 
     # Request temporarily task reputation from the user
-    if table == "TemporaryTask":
+    if table == TEMPORARY_TASK_TABLE:
         question = "Please enter the task reputation:"
         options = ["Good","Bad","None"]
         task_rep = ask_closed_ended_question(question,options)
@@ -201,11 +216,11 @@ def add_Task_questions(table):
 
     # Add data to the dictionary
     data["TaskName"] = task_name
-    data["TaskID"] = add_record("TemporaryTask",data)[0]
-    if table == "TemporaryTask":
+    data["TaskID"] = add_record(TEMPORARY_TASK_TABLE,data)[0]
+    if table == TEMPORARY_TASK_TABLE:
         data["TaskReputation"] = task_rep
     else:
         data["ShiftDurationInMinutes"] = int(float(shift_dur) * 60)
         data["RequiredPersonnel"] = int(amount)
-    questions("TimeRange","add",table,data)
+    questions(TIME_RANGE_TABLE,ADD,table,data)
     return data["TaskID"]

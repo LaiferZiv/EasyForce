@@ -1,4 +1,5 @@
 # Task - Define task type (either TemporaryTask or RecurringTask)
+from EasyForce.common.constants import RECURRING_TASK_TABLE, TEMPORARY_TASK_TABLE
 from EasyForce.common.utils import initialize_table_names, ask_closed_ended_question, extract_match_from_text
 from EasyForce.data_mangement.read_db import display_table
 
@@ -8,8 +9,8 @@ def define_task_type():
     options = [f"A {task_type} task" for task_type in task_types]
     answer = ask_closed_ended_question(question,options)
     if "recurring" == extract_match_from_text(answer,task_types):
-        return "RecurringTask"
-    return "TemporaryTask"
+        return RECURRING_TASK_TABLE
+    return TEMPORARY_TASK_TABLE
 
 def display_table_questions():
     question = "Please select the number of the table you would like to display:"

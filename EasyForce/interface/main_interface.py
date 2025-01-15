@@ -1,4 +1,6 @@
 import sys
+
+from EasyForce.common.constants import *
 from EasyForce.common.utils import questions,ask_closed_ended_question,extract_match_from_text
 from EasyForce.data_mangement.read_db import display_all_tables
 from EasyForce.data_processing.schedule_logic import schedule_shifts
@@ -8,8 +10,8 @@ from EasyForce.interface.user_questions_management.general_questions import defi
 def menu():
     """Main menu for the program."""
     while True:
-        entities = ["Team","Soldier","Task"]
-        actions = ["Add","Update","Delete"]
+        entities = [TEAM_TABLE,SOLDIER_TABLE,"Task"]
+        actions = [ADD,UPDATE,DELETE]
         question = "Main Menu"
         entity_actions = [f"{' / '.join(actions)} a {entity.lower()}" for entity in entities]
         other_options = [

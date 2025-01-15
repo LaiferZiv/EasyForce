@@ -1,5 +1,8 @@
 from datetime import datetime
 
+from EasyForce.common.constants import *
+
+
 def is_valid_ISO_schedule_time(schedule_start_time: str) -> bool:
     try:
         datetime.fromisoformat(schedule_start_time)
@@ -23,17 +26,17 @@ def is_positive_integer(value):
 
 def initialize_table_names():
     table_names = {
-        1: "TimeRange",
-        2: "Team",
-        3: "Soldier",
-        4: "Role",
-        5: "TemporaryTask",
-        6: "RecurringTask",
-        7: "Presence",
-        8: "SoldierRole",
-        9: "TaskRole",
-        10: "CurrentTaskAssignment",
-        11: "TaskHistory"
+        1: TIME_RANGE_TABLE,
+        2: TEAM_TABLE,
+        3: SOLDIER_TABLE,
+        4: ROLE_TABLE,
+        5: TEMPORARY_TASK_TABLE,
+        6: RECURRING_TASK_TABLE,
+        7: PRESENCE_TABLE,
+        8: SOLDIER_ROLE_TABLE,
+        9: TASK_ROLE_TABLE,
+        10: CURRENT_TASK_ASSIGNMENT_TABLE,
+        11: TASK_HISTORY_TABLE
     }
     return table_names
 
@@ -73,60 +76,60 @@ def questions(table, action, *args):
 
     # Mapping of actions to functions for each table
     actions_mapping = {
-        "Soldier": {
-            "add": add_Soldier_questions,
-            "update": update_Soldier_questions,
-            "delete": delete_Soldier_questions,
+        SOLDIER_TABLE: {
+            ADD: add_Soldier_questions,
+            UPDATE: update_Soldier_questions,
+            DELETE: delete_Soldier_questions,
         },
-        "Team": {
-            "add": add_Team_questions,
-            "update": update_Team_questions,
-            "delete": delete_Team_questions,
+        TEAM_TABLE: {
+            ADD: add_Team_questions,
+            UPDATE: update_Team_questions,
+            DELETE: delete_Team_questions,
         },
-        "TemporaryTask": {
-            "add": add_Task_questions,
-            "update": update_Task_questions,
-            "delete": delete_Task_questions,
+        TEMPORARY_TASK_TABLE: {
+            ADD: add_Task_questions,
+            UPDATE: update_Task_questions,
+            DELETE: delete_Task_questions,
         },
-        "RecurringTask": {
-            "add": add_Task_questions,
-            "update": update_Task_questions,
-            "delete": delete_Task_questions,
+        RECURRING_TASK_TABLE: {
+            ADD: add_Task_questions,
+            UPDATE: update_Task_questions,
+            DELETE: delete_Task_questions,
         },
-        "Role": {
-            "add": add_Role_questions,
-            "update": update_Role_questions,
-            "delete": delete_Role_questions,
+        ROLE_TABLE: {
+            ADD: add_Role_questions,
+            UPDATE: update_Role_questions,
+            DELETE: delete_Role_questions,
         },
-        "SoldierRole": {
-            "add": add_SoldierRole_questions,
-            "update": update_SoldierRole_questions,
-            "delete": delete_SoldierRole_questions,
+        SOLDIER_ROLE_TABLE: {
+            ADD: add_SoldierRole_questions,
+            UPDATE: update_SoldierRole_questions,
+            DELETE: delete_SoldierRole_questions,
         },
-        "Presence": {
-            "add": add_Presence_questions,
-            "update": update_Presence_questions,
-            "delete": delete_Presence_questions,
+        PRESENCE_TABLE: {
+            ADD: add_Presence_questions,
+            UPDATE: update_Presence_questions,
+            DELETE: delete_Presence_questions,
         },
-        "TaskRole": {
-            "add": add_TaskRole_questions,
-            "update": update_TaskRole_questions,
-            "delete": delete_TaskRole_questions,
+        TASK_ROLE_TABLE: {
+            ADD: add_TaskRole_questions,
+            UPDATE: update_TaskRole_questions,
+            DELETE: delete_TaskRole_questions,
         },
-        "CurrentTaskAssignment": {
-            "add": add_CurrentTaskAssignment_questions,
-            "update": update_CurrentTaskAssignment_questions,
-            "delete": delete_CurrentTaskAssignment_questions,
+        CURRENT_TASK_ASSIGNMENT_TABLE: {
+            ADD: add_CurrentTaskAssignment_questions,
+            UPDATE: update_CurrentTaskAssignment_questions,
+            DELETE: delete_CurrentTaskAssignment_questions,
         },
-        "TaskHistory": {
-            "add": add_TaskHistory_questions,
-            "update": update_TaskHistory_questions,
-            "delete": delete_TaskHistory_questions,
+        TASK_HISTORY_TABLE: {
+            ADD: add_TaskHistory_questions,
+            UPDATE: update_TaskHistory_questions,
+            DELETE: delete_TaskHistory_questions,
         },
-        "TimeRange": {
-            "add": add_TimeRange_questions,
-            "update": update_TimeRange_questions,
-            "delete": delete_TimeRange_questions,
+        TIME_RANGE_TABLE: {
+            ADD: add_TimeRange_questions,
+            UPDATE: update_TimeRange_questions,
+            DELETE: delete_TimeRange_questions,
         },
         "TaskType":{
             "define":define_task_type
