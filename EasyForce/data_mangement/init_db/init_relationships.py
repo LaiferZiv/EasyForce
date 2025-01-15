@@ -42,13 +42,14 @@ def init_relationships():
         CREATE TABLE IF NOT EXISTS TaskRole(
             TaskType TEXT NOT NULL CHECK(TaskType IN ('TemporaryTask', 'RecurringTask')),
             TaskID INTEGER NOT NULL,
-            RoleID INTEGER NOT NULL,
+            SoldierOrRole TEXT NOT NULL CHECK(SoldierOrRole IN ('Soldier', 'Role')),
+            SoldierOrRoleID INTEGER NOT NULL,
             MinRequiredCount INTEGER NOT NULL,
             RoleEnforcementType INTEGER NOT NULL DEFAULT 1, -- 1 is must be, 0 is can not be
-            PRIMARY KEY (TaskType, TaskID, RoleID),
-            FOREIGN KEY(RoleID) REFERENCES Role(RoleID) ON DELETE CASCADE ON UPDATE CASCADE
+            PRIMARY KEY (TaskType, TaskID,SoldierOrRole, SoldierOrRoleID)        
         );
         """)
+
 
         # 5) CurrentTaskAssignment
         cursor.execute("""

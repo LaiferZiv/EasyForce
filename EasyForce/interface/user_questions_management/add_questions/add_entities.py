@@ -4,7 +4,7 @@ from EasyForce.data_mangement.data_modification import add_record
 from EasyForce.common.utils import questions, is_positive_integer, is_number, \
     yes_no_question, get_datetime_input
 from EasyForce.data_mangement.read_db import get_primary_key_column_names, \
-    get_column_value_by_primary_key, get_primary_key_val_by_unique_column_val, get_column_values
+    get_column_value_by_primary_key, get_primary_key_val_by_unique_column_val
 from EasyForce.interface.user_questions_management.general_questions import ask_open_ended_question, ask_for_name, \
     ask_closed_ended_question
 
@@ -127,10 +127,17 @@ def add_Role_questions(table,table_data):
         if yes_no_question(f"add {table_data['FullName']} a role"):
             questions(SOLDIER_ROLE_TABLE,ADD,table_data)
     elif table == TEMPORARY_TASK_TABLE or table == RECURRING_TASK_TABLE:
-        if yes_no_question("add specific roles that must be included in the task"):
-            questions(TASK_ROLE_TABLE,ADD,table,table_data,ADD)
-        if yes_no_question("add specific roles that can't be included in the task"):
-            questions(TASK_ROLE_TABLE,ADD,table,table_data,DELETE)
+        if yes_no_question("add any restrictions to this task (in terms of roles or soldiers)"):
+            table_data["SoldierOrRole"] = ROLE_TABLE
+            if yes_no_question("add specific roles that must be included in the task"):
+                questions(TASK_ROLE_TABLE,ADD,table,table_data,ROLE_TABLE,ADD)
+            if yes_no_question("add specific roles that can't be included in the task"):
+                questions(TASK_ROLE_TABLE,ADD,table,table_data,ROLE_TABLE,DELETE)
+            table_data["SoldierOrRole"] = SOLDIER_TABLE
+            if yes_no_question("add specific soldiers that must be included in the task"):
+                questions(TASK_ROLE_TABLE,ADD,table,table_data,SOLDIER_TABLE,ADD)
+            if yes_no_question("add specific soldiers that can't be included in the task"):
+                questions(TASK_ROLE_TABLE,ADD,table,table_data,SOLDIER_TABLE,DELETE)
 
 def add_Task_questions(table):
     data = {}
@@ -167,16 +174,21 @@ def add_Task_questions(table):
             elif float(amount) <= 0:
                 print("A required personnel has to be a positive number. Please try again.")
             else:
+                amount = int(amount)
                 break
 
 
     # Add data to the dictionary
     data["TaskName"] = task_name
-    data["TaskID"] = add_record(TEMPORARY_TASK_TABLE,data)[0]
     if table == TEMPORARY_TASK_TABLE:
+        data["TaskID"] = add_record(TEMPORARY_TASK_TABLE, data)[0]
         data["TaskReputation"] = task_rep
     else:
-        data["ShiftDurationInMinutes"] = int(float(shift_dur) * 60)
-        data["RequiredPersonnel"] = int(amount)
+        data["TaskID"] = add_record(RECURRING_TASK_TABLE, data)[0]
+        data["ShiftDurationInMinutes"] = int(float(shift_dur) * MIN_IN_HOUR)
+        data["RequiredPersonnel"] = amount
     questions(TIME_RANGE_TABLE,ADD,table,data)
+    questions(ROLE_TABLE,ADD,table,data)
+
+
     return data["TaskID"]

@@ -19,5 +19,6 @@ UPDATE = "update"
 DELETE = "delete"
 
 #Time related
+MIN_IN_HOUR = 60
 DAY = 24
 YEAR = 365

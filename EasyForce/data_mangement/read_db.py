@@ -236,7 +236,7 @@ def get_primary_key_column_names(table):
         "RecurringTask": ("TaskID",),
         "Presence": ("SoldierTeamTaskType", "SoldierTeamTaskID", "TimeID"),
         "SoldierRole": ("SoldierID", "RoleID"),
-        "TaskRole": ("TaskType", "TaskID", "RoleID"),
+        "TaskRole": ("TaskType", "TaskID","SoldierOrRole", "SoldierOrRoleID"),
         "CurrentTaskAssignment": ("TaskType", "TaskID", "SoldierOrTeamType", "SoldierOrTeamID", "TimeID"),
         "TaskHistory": ("HistoryID",),
     }
