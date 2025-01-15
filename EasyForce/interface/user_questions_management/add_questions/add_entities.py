@@ -128,12 +128,10 @@ def add_Role_questions(table,table_data):
             questions(SOLDIER_ROLE_TABLE,ADD,table_data)
     elif table == TEMPORARY_TASK_TABLE or table == RECURRING_TASK_TABLE:
         if yes_no_question("add any restrictions to this task (in terms of roles or soldiers)"):
-            table_data["SoldierOrRole"] = ROLE_TABLE
             if yes_no_question("add specific roles that must be included in the task"):
                 questions(TASK_ROLE_TABLE,ADD,table,table_data,ROLE_TABLE,ADD)
             if yes_no_question("add specific roles that can't be included in the task"):
                 questions(TASK_ROLE_TABLE,ADD,table,table_data,ROLE_TABLE,DELETE)
-            table_data["SoldierOrRole"] = SOLDIER_TABLE
             if yes_no_question("add specific soldiers that must be included in the task"):
                 questions(TASK_ROLE_TABLE,ADD,table,table_data,SOLDIER_TABLE,ADD)
             if yes_no_question("add specific soldiers that can't be included in the task"):
@@ -144,7 +142,7 @@ def add_Task_questions(table):
     task_rep = shift_dur = amount = 0
 
     #Request task name from the user
-    task_name = "temporary " if table == TEMPORARY_TASK_TABLE else "recurring"
+    task_name = "temporary " if table == TEMPORARY_TASK_TABLE else "recurring "
     task_name += "task"
     task_name = ask_for_name(task_name)
 
@@ -181,14 +179,13 @@ def add_Task_questions(table):
     # Add data to the dictionary
     data["TaskName"] = task_name
     if table == TEMPORARY_TASK_TABLE:
-        data["TaskID"] = add_record(TEMPORARY_TASK_TABLE, data)[0]
         data["TaskReputation"] = task_rep
+        data["TaskID"] = add_record(TEMPORARY_TASK_TABLE, data)[0]
     else:
-        data["TaskID"] = add_record(RECURRING_TASK_TABLE, data)[0]
         data["ShiftDurationInMinutes"] = int(float(shift_dur) * MIN_IN_HOUR)
         data["RequiredPersonnel"] = amount
+        data["TaskID"] = add_record(RECURRING_TASK_TABLE, data)[0]
     questions(TIME_RANGE_TABLE,ADD,table,data)
     questions(ROLE_TABLE,ADD,table,data)
-
 
     return data["TaskID"]

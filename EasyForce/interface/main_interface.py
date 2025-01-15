@@ -1,6 +1,6 @@
 import sys
 
-from EasyForce.common.constants import *
+from EasyForce.common.constants import TEAM_TABLE, SOLDIER_TABLE, ADD, UPDATE, DELETE
 from EasyForce.common.utils import questions, extract_match_from_text
 from EasyForce.data_mangement.read_db import display_all_tables
 from EasyForce.data_processing.schedule_logic import schedule_shifts

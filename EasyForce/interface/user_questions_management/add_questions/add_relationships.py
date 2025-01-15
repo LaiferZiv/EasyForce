@@ -31,7 +31,7 @@ def add_TaskRole_questions(table_type,table_data,entity_type,enforcement_type,mi
             role_name = ask_closed_ended_question(question_name, role_name_list)
             role_name_list.remove(role_name)
             if enforcement_type == ADD:
-                question_amount = "How many of this role are essential for this task?"
+                question_amount = "How many of this role are essential for this task? "
                 while True:
                     min_required_count = ask_open_ended_question(question_amount, "An amount")
                     if is_positive_integer(min_required_count):
@@ -41,15 +41,19 @@ def add_TaskRole_questions(table_type,table_data,entity_type,enforcement_type,mi
             task_role_data = {
                 "TaskType": table_type,
                 "TaskID": table_data["TaskID"],
+                "SoldierOrRole": ROLE_TABLE,
                 "SoldierOrRoleID": get_primary_key_val_by_unique_column_val(ROLE_TABLE, role_name),
                 "MinRequiredCount": min_required_count,
                 "RoleEnforcementType": role_enforcement_type
             }
             add_record(TASK_ROLE_TABLE,task_role_data)
-            if not yes_no_question("add another role?"):
+            if not yes_no_question("add another role"):
                 break
     def add_soldier():
         id_list = get_column_values(SOLDIER_TABLE, "SoldierID")
+        if not id_list:
+            print("There are no soldiers to choose from")
+            return
         name_list = get_column_values(SOLDIER_TABLE, "FullName")
         name_and_id = [f"{name}, ID: {ID}" for name, ID in zip(name_list, id_list)]
         while True:
@@ -64,12 +68,13 @@ def add_TaskRole_questions(table_type,table_data,entity_type,enforcement_type,mi
             task_role_data = {
                 "TaskType": table_type,
                 "TaskID": table_data["TaskID"],
+                "SoldierOrRole": SOLDIER_TABLE,
                 "SoldierOrRoleID": soldier_id,
                 "MinRequiredCount": 1,
                 "RoleEnforcementType": role_enforcement_type
             }
             add_record(TASK_ROLE_TABLE, task_role_data)
-            if not yes_no_question("add another soldier?"):
+            if not yes_no_question("add another soldier"):
                 break
 
     role_enforcement_type = 1 if enforcement_type == ADD else 0

@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from EasyForce.common.constants import *
-from EasyForce.interface.user_questions_management.general_questions import ask_closed_ended_question
 
 
 def is_valid_ISO_schedule_time(schedule_start_time: str) -> bool:
@@ -142,7 +141,7 @@ def questions(table, action, *args):
 
     table_names = initialize_table_names()
     if table in {"TemporaryTask","RecurringTask"}:
-        args = table
+        args = (table,)
     # Check if the provided table name exists in the table_names dictionary,
     # and if the requested action exists in our actions_mapping.
     if table in {*table_names.values(), "TaskType","Display"} and action in {*actions_mapping.get(table, {}), "define","table"}:
@@ -154,6 +153,8 @@ def questions(table, action, *args):
         return None
 
 def yes_no_question(question):
+    from EasyForce.interface.user_questions_management.general_questions import ask_closed_ended_question
+
     question = f"Would you like to {question} ?"
     options = ["Yes","No"]
     if "Yes" == ask_closed_ended_question(question, options):

@@ -34,7 +34,7 @@ def ask_open_ended_question(question,empty_name = "",previous_question = False):
 
 def ask_for_name(name):
     question = f"Please enter the {name} name ('R' to return): "
-    return ask_open_ended_question(name,question,previous_question=True)
+    return ask_open_ended_question(question,name,previous_question=True)
 
 def ask_closed_ended_question(question, options, previous_question = False):
     """
