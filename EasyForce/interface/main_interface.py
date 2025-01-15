@@ -1,10 +1,10 @@
 import sys
 
 from EasyForce.common.constants import *
-from EasyForce.common.utils import questions,ask_closed_ended_question,extract_match_from_text
+from EasyForce.common.utils import questions, extract_match_from_text
 from EasyForce.data_mangement.read_db import display_all_tables
 from EasyForce.data_processing.schedule_logic import schedule_shifts
-from EasyForce.interface.user_questions_management.general_questions import define_task_type
+from EasyForce.interface.user_questions_management.general_questions import define_task_type, ask_closed_ended_question
 
 
 def menu():

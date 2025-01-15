@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from EasyForce.common.constants import *
+from EasyForce.interface.user_questions_management.general_questions import ask_closed_ended_question
 
 
 def is_valid_ISO_schedule_time(schedule_start_time: str) -> bool:
@@ -152,38 +153,10 @@ def questions(table, action, *args):
         print(f"Invalid table or action: table={table}, action={action}")
         return None
 
-def ask_closed_ended_question(question, options, previous_question = False):
-    """
-    Displays a question with its options, gets user input, and returns the selected option number.
-
-    Args:
-        question (str): The question to display.
-        options (list): A list of possible answers.
-        previous_question(bool): A bool indicates to add Return option
-
-    Returns:
-        str: answer.
-    """
-    if previous_question:
-        options.append("Return")
-    print(question)
-    for i, option in enumerate(options, 1):
-        print(f"{i}. {option}")
-
-    while True:
-        try:
-            choice = int(input("Enter the number of your choice: ").strip())
-            if 1 <= choice <= len(options):
-                return options[choice-1]
-            else:
-                print("Invalid choice. Please select a valid option.")
-        except ValueError:
-            print("Please enter a valid number.")
-
 def yes_no_question(question):
     question = f"Would you like to {question} ?"
     options = ["Yes","No"]
-    if "Yes" == ask_closed_ended_question(question,options):
+    if "Yes" == ask_closed_ended_question(question, options):
         return True
     return False
 

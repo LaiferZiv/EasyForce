@@ -1,6 +1,6 @@
 # Task - Define task type (either TemporaryTask or RecurringTask)
 from EasyForce.common.constants import RECURRING_TASK_TABLE, TEMPORARY_TASK_TABLE
-from EasyForce.common.utils import initialize_table_names, ask_closed_ended_question, extract_match_from_text
+from EasyForce.common.utils import initialize_table_names, extract_match_from_text
 from EasyForce.data_mangement.read_db import display_table
 
 def define_task_type():
@@ -35,3 +35,31 @@ def ask_open_ended_question(question,empty_name = "",previous_question = False):
 def ask_for_name(name):
     question = f"Please enter the {name} name ('R' to return): "
     return ask_open_ended_question(name,question,previous_question=True)
+
+def ask_closed_ended_question(question, options, previous_question = False):
+    """
+    Displays a question with its options, gets user input, and returns the selected option number.
+
+    Args:
+        question (str): The question to display.
+        options (list): A list of possible answers.
+        previous_question(bool): A bool indicates to add Return option
+
+    Returns:
+        str: answer.
+    """
+    if previous_question:
+        options.append("Return")
+    print(question)
+    for i, option in enumerate(options, 1):
+        print(f"{i}. {option}")
+
+    while True:
+        try:
+            choice = int(input("Enter the number of your choice: ").strip())
+            if 1 <= choice <= len(options):
+                return options[choice-1]
+            else:
+                print("Invalid choice. Please select a valid option.")
+        except ValueError:
+            print("Please enter a valid number.")

@@ -2,10 +2,11 @@ from datetime import timedelta
 from EasyForce.common.constants import *
 from EasyForce.data_mangement.data_modification import add_record
 from EasyForce.common.utils import questions, is_positive_integer, is_number, \
-    yes_no_question, get_datetime_input, ask_closed_ended_question
+    yes_no_question, get_datetime_input
 from EasyForce.data_mangement.read_db import get_primary_key_column_names, \
     get_column_value_by_primary_key, get_primary_key_val_by_unique_column_val, get_column_values
-from EasyForce.interface.user_questions_management.general_questions import ask_open_ended_question,ask_for_name
+from EasyForce.interface.user_questions_management.general_questions import ask_open_ended_question, ask_for_name, \
+    ask_closed_ended_question
 
 
 def add_TimeRange_questions(table, table_data):
@@ -123,58 +124,13 @@ def add_Soldier_questions(team_name = None):
 
 def add_Role_questions(table,table_data):
     if table == SOLDIER_TABLE:
-        question = f"add {table_data['FullName']} a role"
-        has_role = yes_no_question(question)
-
-        if has_role:
-            question = f"{table_data['FullName']}'s role:"
-            empty_name = "Role name"
-            while True:
-                role_name = ask_open_ended_question(question,empty_name)
-                table_data["RoleID"] = add_record("Role", {"RoleName": role_name})
-                questions("SoldierRole","add",table_data)
-                another_role = f"add {table_data['FullName']} another role"
-                if not yes_no_question(another_role):
-                    break
+        if yes_no_question(f"add {table_data['FullName']} a role"):
+            questions(SOLDIER_ROLE_TABLE,ADD,table_data)
     elif table == TEMPORARY_TASK_TABLE or table == RECURRING_TASK_TABLE:
-        question = "add specific roles that must be included in the task"
-        role_name_list = get_column_values(ROLE_TABLE, "RoleName")
-        role_enforcement_type = 1
-        if yes_no_question(question):
-            while True:
-                if not role_name_list:
-                    print("There are no roles to choose from")
-                    break
-                question_name = "Role name:"
-                role_name = ask_closed_ended_question(question_name,role_name_list)
-                role_name_list.remove(role_name)
-                if question == "add specific roles that must be included in the task":
-                    question_amount = "How many of this role are essential for this task?"
-                    while True:
-                        min_required_count = ask_open_ended_question(question_amount,"An amount")
-                        if is_positive_integer(min_required_count):
-                            min_required_count = int(min_required_count)
-                            break
-                else:
-                    min_required_count = 0
-                    role_enforcement_type = 0
-
-                task_role_data = {
-                    "TaskType" : table,
-                    "TaskID" :table_data["TaskID"],
-                    "RoleID" : get_primary_key_val_by_unique_column_val(ROLE_TABLE,role_name),
-                    "MinRequiredCount" : min_required_count,
-                    "RoleEnforcementType" : role_enforcement_type
-                }
-                questions(TASK_ROLE_TABLE,ADD,task_role_data)
-                if not yes_no_question("add another role?"):
-                    if question == "add specific roles that can't be included in the task":
-                        break
-                    question = "add specific roles that can't be included in the task"
-                    if not yes_no_question(question):
-                        break
-
-        return
+        if yes_no_question("add specific roles that must be included in the task"):
+            questions(TASK_ROLE_TABLE,ADD,table,table_data,ADD)
+        if yes_no_question("add specific roles that can't be included in the task"):
+            questions(TASK_ROLE_TABLE,ADD,table,table_data,DELETE)
 
 def add_Task_questions(table):
     data = {}
