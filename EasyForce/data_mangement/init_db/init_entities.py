@@ -64,6 +64,8 @@ def init_entities():
             TaskID INTEGER PRIMARY KEY AUTOINCREMENT,
             TaskName TEXT NOT NULL UNIQUE,
             ShiftDurationInMinutes INTEGER NOT NULL,
+            EveryDayStartTime TEXT NOT NULL,
+            EveryDayEndTime TEXT NOT NULL,
             RequiredPersonnel INTEGER NOT NULL
         );
         """)

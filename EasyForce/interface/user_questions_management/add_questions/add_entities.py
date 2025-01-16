@@ -152,7 +152,7 @@ def add_Task_questions(table):
         options = ["Good","Bad","None"]
         task_rep = ask_closed_ended_question(question,options)
     # Request recurring task shift duration and required personal from the user
-    else:
+    else: #Recurring task
         question = "Please enter a shift duration (in hours): "
         empty_name = "A shift"
         while True:
@@ -174,7 +174,20 @@ def add_Task_questions(table):
             else:
                 amount = int(amount)
                 break
-
+        question = "Please enter the time when the task starts each day (press Enter if the task lasts all day): "
+        start_time = get_datetime_input(question,timedelta(days=0),"%H:%M")
+        if not start_time:
+            data["EveryDayStartTime"] = data["EveryDayEndTime"] = MIDNIGHT
+        else:
+            question = "Please enter the time when the task ends each day (you can enter a time after midnight if the task continues into the next day): "
+            while True:
+                end_time = get_datetime_input(question, timedelta(days=0),"%H:%M")
+                if not end_time:
+                    print("You must specify an end time for the task.")
+                else:
+                    break
+            data["EveryDayStartTime"] = start_time
+            data["EveryDayEndTime"] = end_time
 
     # Add data to the dictionary
     data["TaskName"] = task_name

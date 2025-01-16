@@ -180,12 +180,19 @@ def extract_match_from_text(selected_text, candidates):
             return candidate
     raise ValueError("No matching candidate found in the selected text.")
 
-def get_datetime_input(prompt,default_delta = None):
+def get_datetime_input(prompt,default_delta = None, time_format = "%Y-%m-%d %H:%M"):
     while True:
         user_input = input(prompt).strip()
-        if user_input == "":
+        if user_input == "" and time_format == "%Y-%m-%d %H:%M":
             return datetime.now() + default_delta
+        elif user_input == "" and time_format == "%H:%M":
+            return None
         try:
-            return datetime.strptime(user_input, "%Y-%m-%d %H:%M")
+            return datetime.strptime(user_input, time_format)
         except ValueError:
-                print("invalid input. use format yyyy-mm-dd hh:mm")
+                if time_format == "%Y-%m-%d %H:%M":
+                    print("invalid input. use format yyyy-mm-dd hh:mm")
+                elif time_format == "%H:%M":
+                    print("invalid input. use format hh:mm")
+                else:
+                    print("invalid input.")

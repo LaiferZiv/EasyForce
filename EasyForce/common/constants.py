@@ -22,3 +22,4 @@ DELETE = "delete"
 MIN_IN_HOUR = 60
 DAY = 24
 YEAR = 365
+MIDNIGHT = "00:00"
