@@ -27,8 +27,11 @@ def ask_open_ended_question(question,empty_name = "",previous_question = False):
         answer = input(question).strip()
         if not answer:
             print(f"{empty_name} cannot be empty. Please try again.")
-        elif previous_question and  answer in {'r','R'}:
-            return None
+        if answer in {'r','R'}:
+            if previous_question:
+                return None
+            else:
+                print("There is no option to choose the letter 'R'.")
         else:
             return answer
 

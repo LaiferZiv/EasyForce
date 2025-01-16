@@ -4,7 +4,7 @@ from EasyForce.data_mangement.data_modification import add_record
 from EasyForce.common.utils import questions, is_positive_integer, is_number, \
     yes_no_question, get_datetime_input
 from EasyForce.data_mangement.read_db import get_primary_key_column_names, \
-    get_column_value_by_primary_key, get_primary_key_val_by_unique_column_val
+    get_column_value_by_primary_key, get_primary_key_val_by_unique_column_val,get_column_values
 from EasyForce.interface.user_questions_management.general_questions import ask_open_ended_question, ask_for_name, \
     ask_closed_ended_question
 
@@ -36,8 +36,8 @@ def add_TimeRange_questions(table, table_data):
                 start_dt = get_datetime_input(start_prompt,timedelta(days=0))
                 end_dt = get_datetime_input(end_prompt,timedelta(days=YEAR))
                 time_range_data = {
-                "StartDateTime" : start_dt,
-                "EndDateTime" : end_dt
+                "StartDateTime" : start_dt[1],
+                "EndDateTime" : end_dt[1]
                 }
                 time_range_id = add_record(TIME_RANGE_TABLE,time_range_data)[0]
                 presence_data = {
@@ -49,7 +49,9 @@ def add_TimeRange_questions(table, table_data):
                 print(presence_data)
                 questions(PRESENCE_TABLE,ADD,presence_data)
 
-                if not yes_no_question(more_question):
+                if not start_dt[0] and not end_dt[0]:
+                    break
+                if yes_no_question(more_question):
                     break
 
     if table == SOLDIER_TABLE:
@@ -59,13 +61,15 @@ def add_TimeRange_questions(table, table_data):
         add_time_ranges()
 
 def add_Team_questions(soldier_name = None):
-    question = "Please enter the team name: "
-    if soldier_name:
-        question = f"Please enter {soldier_name}'s team name ('R' to return): "
+    question = "Please enter the team name ('R' to return): "
     data = {}
 
+    if soldier_name:
+        question = f"Please enter {soldier_name}'s team name: "
+
+
     # Request team name from the user
-    team_name = ask_open_ended_question(question,"Team name",previous_question=True)
+    team_name = ask_open_ended_question(question,"Team name",previous_question=True if not soldier_name else False)
     if not team_name:
         return None
 
@@ -80,7 +84,7 @@ def add_Team_questions(soldier_name = None):
             if answer:
                 if not questions(SOLDIER_TABLE, ADD, team_name):
                     return team_id
-                question = f"add more soldiers to {team_name} team?"
+                question = f"add more soldiers to {team_name} team"
             else:
                 break
     return team_id
@@ -116,8 +120,15 @@ def add_Soldier_questions(team_name = None):
     if team_name:
         data["TeamID"] = get_primary_key_val_by_unique_column_val(TEAM_TABLE,team_name)
     else:
-        data["TeamID"] = questions(TEAM_TABLE,ADD,soldier_name)[0]
-
+        question = f"Please select {soldier_name}'s team:"
+        teams = get_column_values(TEAM_TABLE,"TeamName")
+        if teams:
+            team_name = ask_closed_ended_question(question, teams)
+            team_id = get_primary_key_val_by_unique_column_val(TEAM_TABLE, team_name)
+            data["TeamID"] = team_id
+        else:
+            print("There are no existing teams. Please add a team first")
+            data["TeamID"] = questions(TEAM_TABLE,ADD,soldier_name)[0]
     soldier_id = add_record(SOLDIER_TABLE,data)
     questions(TIME_RANGE_TABLE,ADD,SOLDIER_TABLE,data)
     return soldier_id
@@ -176,18 +187,18 @@ def add_Task_questions(table):
                 break
         question = "Please enter the time when the task starts each day (press Enter if the task lasts all day): "
         start_time = get_datetime_input(question,timedelta(days=0),"%H:%M")
-        if not start_time:
+        if not start_time[0]:
             data["EveryDayStartTime"] = data["EveryDayEndTime"] = MIDNIGHT
         else:
             question = "Please enter the time when the task ends each day (you can enter a time after midnight if the task continues into the next day): "
             while True:
                 end_time = get_datetime_input(question, timedelta(days=0),"%H:%M")
-                if not end_time:
+                if not end_time[0]:
                     print("You must specify an end time for the task.")
                 else:
                     break
-            data["EveryDayStartTime"] = start_time
-            data["EveryDayEndTime"] = end_time
+            data["EveryDayStartTime"] = start_time[1]
+            data["EveryDayEndTime"] = end_time[1]
 
     # Add data to the dictionary
     data["TaskName"] = task_name

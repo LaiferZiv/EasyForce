@@ -9,7 +9,7 @@ def add_Presence_questions(table_data):
     return add_record(PRESENCE_TABLE,table_data)
 
 def add_SoldierRole_questions(table_data):
-    question = f"{table_data['FullName']}'s role:"
+    question = f"{table_data['FullName']}'s role: "
     empty_name = "Role name"
     while True:
         role_name = ask_open_ended_question(question, empty_name)

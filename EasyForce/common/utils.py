@@ -184,11 +184,11 @@ def get_datetime_input(prompt,default_delta = None, time_format = "%Y-%m-%d %H:%
     while True:
         user_input = input(prompt).strip()
         if user_input == "" and time_format == "%Y-%m-%d %H:%M":
-            return datetime.now() + default_delta
+            return [False,datetime.now() + default_delta]
         elif user_input == "" and time_format == "%H:%M":
-            return None
+            return [False,datetime.now() + default_delta]
         try:
-            return datetime.strptime(user_input, time_format)
+            return [True,datetime.strptime(user_input, time_format)]
         except ValueError:
                 if time_format == "%Y-%m-%d %H:%M":
                     print("invalid input. use format yyyy-mm-dd hh:mm")
