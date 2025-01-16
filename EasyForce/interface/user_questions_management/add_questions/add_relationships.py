@@ -1,12 +1,50 @@
+from datetime import timedelta
+
 from EasyForce.common.constants import *
 from EasyForce.data_mangement.read_db import get_column_values,get_primary_key_val_by_unique_column_val
 from EasyForce.data_mangement.data_modification import add_record
 from EasyForce.interface.user_questions_management.general_questions import ask_closed_ended_question,ask_open_ended_question
-from EasyForce.common.utils import is_positive_integer,yes_no_question
+from EasyForce.common.utils import is_positive_integer, yes_no_question, get_datetime_input
 
 
-def add_Presence_questions(table_data):
-    return add_record(PRESENCE_TABLE,table_data)
+def add_Presence_questions(table,table_data,pos = ""):
+    time_format = "time (YYYY-MM-DD HH:MM) or press Enter"
+    is_presence = 1
+    if table == SOLDIER_TABLE:
+        question = f"add times when {table_data['FullName']} is {pos} the base"
+        is_presence = 1 if pos == "in" else 0
+        (start_prompt,end_prompt) = ("arrival","departure") if is_presence else ("departure","return")
+        start_prompt = f"Enter {table_data['FullName']}'s {start_prompt} {time_format} for now: "
+        end_prompt = f"Enter {table_data['FullName']}'s {end_prompt} {time_format} if unknown: "
+        more_question = f"add more times when {table_data['FullName']} is {pos} the base"
+    else: #Tasks
+        question = f"add the time range during which the task {table_data['TaskName']} is relevant ('No' indicates it's inactive)"
+        start_prompt = f"Enter the task's start {time_format} for now: "
+        end_prompt = f"Enter the task's end {time_format} if unknown: "
+        more_question = f"add more times when {table_data['TaskName']} is active"
+
+    is_active = yes_no_question(question)
+    if is_active:
+        while True:
+            start_dt = get_datetime_input(start_prompt,timedelta(days=0))
+            end_dt = get_datetime_input(end_prompt,timedelta(days=YEAR))
+            time_range_data = {
+            "StartDateTime" : start_dt[1],
+            "EndDateTime" : end_dt[1]
+            }
+            time_range_id = add_record(TIME_RANGE_TABLE,time_range_data)[0]
+            presence_data = {
+            "SoldierTeamTaskType" : table,
+            "SoldierTeamTaskID" : table_data["SoldierID"] if table == SOLDIER_TABLE else table_data["TaskID"],
+            "TimeID" : time_range_id,
+            "isActive" : is_presence if table == SOLDIER_TABLE else 1
+            }
+            add_record(PRESENCE_TABLE,presence_data)
+
+            if not start_dt[0] and not end_dt[0]:
+                break
+            if yes_no_question(more_question):
+                break
 
 def add_SoldierRole_questions(table_data):
     question = f"{table_data['FullName']}'s role: "

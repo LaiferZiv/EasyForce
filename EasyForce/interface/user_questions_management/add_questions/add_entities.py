@@ -14,51 +14,11 @@ def add_TimeRange_questions(table, table_data):
     Adds time ranges for a soldier's presence (in/out) at the base
     """
     ################## I need to add team option################################
-    def add_time_ranges(pos = ""):
-        time_format = "time (YYYY-MM-DD HH:MM) or press Enter"
-        is_presence = 1
-        if table == SOLDIER_TABLE:
-            question = f"add times when {table_data['FullName']} is {pos} the base"
-            is_presence = 1 if pos == "in" else 0
-            (start_prompt,end_prompt) = ("arrival","departure") if is_presence else ("departure","return")
-            start_prompt = f"Enter {table_data['FullName']}'s {start_prompt} {time_format} for now: "
-            end_prompt = f"Enter {table_data['FullName']}'s {end_prompt} {time_format} if unknown: "
-            more_question = f"add more times when {table_data['FullName']} is {pos} the base"
-        else: #Tasks
-            question = f"add the time range during which the task {table_data['TaskName']} is relevant ('No' indicates it's inactive)"
-            start_prompt = f"Enter the task's start {time_format} for now: "
-            end_prompt = f"Enter the task's end {time_format} if unknown: "
-            more_question = f"add more times when {table_data['TaskName']} is active"
-
-        is_active = yes_no_question(question)
-        if is_active:
-            while True:
-                start_dt = get_datetime_input(start_prompt,timedelta(days=0))
-                end_dt = get_datetime_input(end_prompt,timedelta(days=YEAR))
-                time_range_data = {
-                "StartDateTime" : start_dt[1],
-                "EndDateTime" : end_dt[1]
-                }
-                time_range_id = add_record(TIME_RANGE_TABLE,time_range_data)[0]
-                presence_data = {
-                "SoldierTeamTaskType" : table,
-                "SoldierTeamTaskID" : table_data["SoldierID"] if table == SOLDIER_TABLE else table_data["TaskID"],
-                "TimeID" : time_range_id,
-                "isActive" : is_presence if table == SOLDIER_TABLE else 1
-                }
-                print(presence_data)
-                questions(PRESENCE_TABLE,ADD,presence_data)
-
-                if not start_dt[0] and not end_dt[0]:
-                    break
-                if yes_no_question(more_question):
-                    break
-
     if table == SOLDIER_TABLE:
-        add_time_ranges("in")
-        add_time_ranges("out")
+        questions(PRESENCE_TABLE,ADD,table,table_data,"in")
+        questions(PRESENCE_TABLE,ADD,table,table_data,"out")
     else:
-        add_time_ranges()
+        questions(PRESENCE_TABLE,ADD,table,table_data)
 
 def add_Team_questions(soldier_name = None):
     question = "Please enter the team name ('R' to return): "
