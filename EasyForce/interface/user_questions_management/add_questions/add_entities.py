@@ -83,9 +83,13 @@ def add_Soldier_questions(team_name = None):
         question = f"Please select {soldier_name}'s team:"
         teams = get_column_values(TEAM_TABLE,"TeamName")
         if teams:
+            teams.append("Add a new team")
             team_name = ask_closed_ended_question(question, teams)
-            team_id = get_primary_key_val_by_unique_column_val(TEAM_TABLE, team_name)
-            data["TeamID"] = team_id
+            if team_name == "Add a new team":
+                data["TeamID"] = questions(TEAM_TABLE, ADD, soldier_name)[0]
+            else:
+                team_id = get_primary_key_val_by_unique_column_val(TEAM_TABLE, team_name)
+                data["TeamID"] = team_id
         else:
             print("There are no existing teams. Please add a team first")
             data["TeamID"] = questions(TEAM_TABLE,ADD,soldier_name)[0]
