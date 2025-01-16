@@ -50,7 +50,6 @@ def init_relationships():
         );
         """)
 
-
         # 5) CurrentTaskAssignment
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS CurrentTaskAssignment(
