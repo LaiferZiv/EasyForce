@@ -61,16 +61,22 @@ def questions(table, action, *args):
     )
     from EasyForce.interface.user_questions_management.update_questions.update_entities import (
         update_Soldier_questions, update_Team_questions,
-        update_Task_questions, update_Role_questions, update_SoldierRole_questions,
+        update_Task_questions, update_Role_questions, update_TimeRange_questions
+    )
+    from EasyForce.interface.user_questions_management.update_questions.update_relationships import (
+        update_SoldierRole_questions,
         update_Presence_questions, update_TaskRole_questions,
         update_CurrentTaskAssignment_questions, update_TaskHistory_questions,
-        update_TimeRange_questions
     )
     from EasyForce.interface.user_questions_management.delete_questions.delete_entities import (
-        delete_Soldier_questions, delete_Team_questions, delete_Task_questions, delete_Role_questions, delete_SoldierRole_questions,
+        delete_Soldier_questions, delete_Team_questions, delete_Task_questions, delete_Role_questions,
+        delete_TimeRange_questions
+    )
+
+    from EasyForce.interface.user_questions_management.delete_questions.delete_relationships import (
+        delete_SoldierRole_questions,
         delete_Presence_questions, delete_TaskRole_questions,
         delete_CurrentTaskAssignment_questions, delete_TaskHistory_questions,
-        delete_TimeRange_questions
     )
     from EasyForce.interface.user_questions_management.general_questions import define_task_type,display_table_questions
 
