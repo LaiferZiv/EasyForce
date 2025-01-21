@@ -1,23 +1,19 @@
 """
 relationships_classes.py
 
-Contains relationship (bridge) classes that inherit from BaseEntity.
-These represent tables linking or relating entities in your schema.
+Relationship (bridge) tables, also only calling .add(), .delete(), etc. internally.
 """
 
-from data_modification import BaseEntity
+from EasyForce.data_mangement.data_structure.data_modification import BaseEntity
 
 class Presence(BaseEntity):
-    """
-    Represents the Presence table:
-    - SoldierTeamTaskType (TEXT, part of PK)
-    - SoldierTeamTaskID (INTEGER, part of PK)
-    - TimeID (INTEGER, part of PK)
-    - isActive (INTEGER, default 1 => presence)
-    Primary Key: (SoldierTeamTaskType, SoldierTeamTaskID, TimeID)
-    """
+    SoldierTeamTaskType: str
+    SoldierTeamTaskID: int
+    TimeID: int
+    isActive: int
+
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         return "Presence"
 
     @classmethod
@@ -28,9 +24,8 @@ class Presence(BaseEntity):
     def get_primary_key_columns_names(cls):
         return "SoldierTeamTaskType", "SoldierTeamTaskID", "TimeID"
 
-    # Not autoincrement since PK is composite and partially text
     @classmethod
-    def is_autoincrement(cls):
+    def is_autoincrement(cls) -> bool:
         return False
 
     def __repr__(self):
@@ -43,14 +38,11 @@ class Presence(BaseEntity):
 
 
 class SoldierRole(BaseEntity):
-    """
-    Represents the SoldierRole table:
-    - SoldierID (INTEGER, part of PK)
-    - RoleID (INTEGER, part of PK)
-    Primary Key: (SoldierID, RoleID)
-    """
+    SoldierID: int
+    RoleID: int
+
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         return "SoldierRole"
 
     @classmethod
@@ -62,7 +54,7 @@ class SoldierRole(BaseEntity):
         return "SoldierID", "RoleID"
 
     @classmethod
-    def is_autoincrement(cls):
+    def is_autoincrement(cls) -> bool:
         return False
 
     def __repr__(self):
@@ -73,37 +65,27 @@ class SoldierRole(BaseEntity):
 
 
 class TaskRole(BaseEntity):
-    """
-    Represents the TaskRole table:
-    - TaskType (TEXT, part of PK)
-    - TaskID (INTEGER, part of PK)
-    - SoldierOrRole (TEXT, part of PK)
-    - SoldierOrRoleID (INTEGER, part of PK)
-    - MinRequiredCount (INTEGER)
-    - RoleEnforcementType (INTEGER, default 1 => must be, 0 => cannot be)
-    Primary Key: (TaskType, TaskID, SoldierOrRole, SoldierOrRoleID)
-    """
+    TaskType: str
+    TaskID: int
+    SoldierOrRole: str
+    SoldierOrRoleID: int
+    MinRequiredCount: int
+    RoleEnforcementType: int
+
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         return "TaskRole"
 
     @classmethod
     def get_columns(cls):
-        return (
-            "TaskType",
-            "TaskID",
-            "SoldierOrRole",
-            "SoldierOrRoleID",
-            "MinRequiredCount",
-            "RoleEnforcementType",
-        )
+        return "TaskType", "TaskID", "SoldierOrRole", "SoldierOrRoleID", "MinRequiredCount", "RoleEnforcementType"
 
     @classmethod
     def get_primary_key_columns_names(cls):
         return "TaskType", "TaskID", "SoldierOrRole", "SoldierOrRoleID"
 
     @classmethod
-    def is_autoincrement(cls):
+    def is_autoincrement(cls) -> bool:
         return False
 
     def __repr__(self):
@@ -118,35 +100,26 @@ class TaskRole(BaseEntity):
 
 
 class CurrentTaskAssignment(BaseEntity):
-    """
-    Represents the CurrentTaskAssignment table:
-    - TaskType (TEXT, part of PK)
-    - TaskID (INTEGER, part of PK)
-    - SoldierOrTeamType (TEXT, part of PK)
-    - SoldierOrTeamID (INTEGER, part of PK)
-    - TimeID (INTEGER, part of PK)
-    Primary Key: (TaskType, TaskID, SoldierOrTeamType, SoldierOrTeamID, TimeID)
-    """
+    TaskType: str
+    TaskID: int
+    SoldierOrTeamType: str
+    SoldierOrTeamID: int
+    TimeID: int
+
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         return "CurrentTaskAssignment"
 
     @classmethod
     def get_columns(cls):
-        return (
-            "TaskType",
-            "TaskID",
-            "SoldierOrTeamType",
-            "SoldierOrTeamID",
-            "TimeID",
-        )
+        return "TaskType", "TaskID", "SoldierOrTeamType", "SoldierOrTeamID", "TimeID"
 
     @classmethod
     def get_primary_key_columns_names(cls):
         return "TaskType", "TaskID", "SoldierOrTeamType", "SoldierOrTeamID", "TimeID"
 
     @classmethod
-    def is_autoincrement(cls):
+    def is_autoincrement(cls) -> bool:
         return False
 
     def __repr__(self):
@@ -159,43 +132,29 @@ class CurrentTaskAssignment(BaseEntity):
 
 
 class TaskHistory(BaseEntity):
-    """
-    Represents the TaskHistory table:
-    - HistoryID (INTEGER PRIMARY KEY AUTOINCREMENT)
-    - TaskType (TEXT, CHECK constraint)
-    - TaskID (INTEGER)
-    - SoldierOrTeamType (TEXT, CHECK constraint)
-    - SoldierOrTeamID (INTEGER)
-    - TaskReputation (TEXT, CHECK constraint)
-    - TimeID (INTEGER)
-    - CompletionStatus (TEXT, CHECK constraint)
-    Primary Key: (HistoryID)
-    There's also a UNIQUE constraint on (TaskType, TaskID, SoldierOrTeamType, SoldierOrTeamID, TimeID).
-    """
+    HistoryID: int
+    TaskType: str
+    TaskID: int
+    SoldierOrTeamType: str
+    SoldierOrTeamID: int
+    TaskReputation: str
+    TimeID: int
+    CompletionStatus: str
+
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         return "TaskHistory"
 
     @classmethod
     def get_columns(cls):
-        return (
-            "HistoryID",
-            "TaskType",
-            "TaskID",
-            "SoldierOrTeamType",
-            "SoldierOrTeamID",
-            "TaskReputation",
-            "TimeID",
-            "CompletionStatus",
-        )
+        return "HistoryID", "TaskType", "TaskID", "SoldierOrTeamType", "SoldierOrTeamID", "TaskReputation", "TimeID", "CompletionStatus"
 
     @classmethod
     def get_primary_key_columns_names(cls):
-        return ("HistoryID",)
+        return "HistoryID",
 
     @classmethod
-    def is_autoincrement(cls):
-        # HistoryID is AUTOINCREMENT
+    def is_autoincrement(cls) -> bool:
         return True
 
     def __repr__(self):

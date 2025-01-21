@@ -1,20 +1,19 @@
 """
 entities_classes.py
 
-Contains classes representing the main entity tables, each inheriting from BaseEntity.
+Contains classes representing the main entity tables, each inheriting from BaseEntity,
+with typed attributes and without parentheses when returning tuples.
 """
+from EasyForce.data_mangement.data_structure.data_modification import BaseEntity
 
-from data_modification import BaseEntity
 
 class TimeRange(BaseEntity):
-    """
-    Represents the TimeRange table:
-    - TimeID (INTEGER PRIMARY KEY AUTOINCREMENT)
-    - StartDateTime (TEXT NOT NULL)
-    - EndDateTime (TEXT NOT NULL)
-    """
+    TimeID: int
+    StartDateTime: str
+    EndDateTime: str
+
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         return "TimeRange"
 
     @classmethod
@@ -23,10 +22,10 @@ class TimeRange(BaseEntity):
 
     @classmethod
     def get_primary_key_columns_names(cls):
-        return ("TimeID",)
+        return "TimeID",
 
     @classmethod
-    def is_autoincrement(cls):
+    def is_autoincrement(cls) -> bool:
         return True
 
     def __repr__(self):
@@ -38,13 +37,11 @@ class TimeRange(BaseEntity):
 
 
 class Team(BaseEntity):
-    """
-    Represents the Team table:
-    - TeamID (INTEGER PRIMARY KEY AUTOINCREMENT)
-    - TeamName (TEXT NOT NULL UNIQUE)
-    """
+    TeamID: int
+    TeamName: str
+
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         return "Team"
 
     @classmethod
@@ -53,10 +50,10 @@ class Team(BaseEntity):
 
     @classmethod
     def get_primary_key_columns_names(cls):
-        return ("TeamID",)
+        return "TeamID",
 
     @classmethod
-    def is_autoincrement(cls):
+    def is_autoincrement(cls) -> bool:
         return True
 
     def __repr__(self):
@@ -67,14 +64,12 @@ class Team(BaseEntity):
 
 
 class Soldier(BaseEntity):
-    """
-    Represents the Soldier table:
-    - SoldierID (INTEGER PRIMARY KEY)  (NOT AUTOINCREMENT)
-    - FullName (TEXT NOT NULL)
-    - TeamID (INTEGER NOT NULL, references Team(TeamID))
-    """
+    SoldierID: int
+    FullName: str
+    TeamID: int
+
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         return "Soldier"
 
     @classmethod
@@ -83,11 +78,10 @@ class Soldier(BaseEntity):
 
     @classmethod
     def get_primary_key_columns_names(cls):
-        return ("SoldierID",)
+        return "SoldierID",
 
     @classmethod
-    def is_autoincrement(cls):
-        # SoldierID is not AUTOINCREMENT
+    def is_autoincrement(cls) -> bool:
         return False
 
     def __repr__(self):
@@ -99,13 +93,11 @@ class Soldier(BaseEntity):
 
 
 class Role(BaseEntity):
-    """
-    Represents the Role table:
-    - RoleID (INTEGER PRIMARY KEY AUTOINCREMENT)
-    - RoleName (TEXT NOT NULL UNIQUE)
-    """
+    RoleID: int
+    RoleName: str
+
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         return "Role"
 
     @classmethod
@@ -114,10 +106,10 @@ class Role(BaseEntity):
 
     @classmethod
     def get_primary_key_columns_names(cls):
-        return ("RoleID",)
+        return "RoleID",
 
     @classmethod
-    def is_autoincrement(cls):
+    def is_autoincrement(cls) -> bool:
         return True
 
     def __repr__(self):
@@ -128,14 +120,12 @@ class Role(BaseEntity):
 
 
 class TemporaryTask(BaseEntity):
-    """
-    Represents the TemporaryTask table:
-    - TaskID (INTEGER PRIMARY KEY AUTOINCREMENT)
-    - TaskName (TEXT NOT NULL UNIQUE)
-    - TaskReputation (TEXT NOT NULL CHECK(TaskReputation IN ('Good', 'Bad', 'None')))
-    """
+    TaskID: int
+    TaskName: str
+    TaskReputation: str
+
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         return "TemporaryTask"
 
     @classmethod
@@ -144,10 +134,10 @@ class TemporaryTask(BaseEntity):
 
     @classmethod
     def get_primary_key_columns_names(cls):
-        return ("TaskID",)
+        return "TaskID",
 
     @classmethod
-    def is_autoincrement(cls):
+    def is_autoincrement(cls) -> bool:
         return True
 
     def __repr__(self):
@@ -159,36 +149,27 @@ class TemporaryTask(BaseEntity):
 
 
 class RecurringTask(BaseEntity):
-    """
-    Represents the RecurringTask table:
-    - TaskID (INTEGER PRIMARY KEY AUTOINCREMENT)
-    - TaskName (TEXT NOT NULL UNIQUE)
-    - ShiftDurationInMinutes (INTEGER NOT NULL)
-    - EveryDayStartTime (TEXT NOT NULL)
-    - EveryDayEndTime (TEXT NOT NULL)
-    - RequiredPersonnel (INTEGER NOT NULL)
-    """
+    TaskID: int
+    TaskName: str
+    ShiftDurationInMinutes: int
+    EveryDayStartTime: str
+    EveryDayEndTime: str
+    RequiredPersonnel: int
+
     @classmethod
-    def get_table_name(cls):
+    def get_table_name(cls) -> str:
         return "RecurringTask"
 
     @classmethod
     def get_columns(cls):
-        return (
-            "TaskID",
-            "TaskName",
-            "ShiftDurationInMinutes",
-            "EveryDayStartTime",
-            "EveryDayEndTime",
-            "RequiredPersonnel",
-        )
+        return "TaskID", "TaskName", "ShiftDurationInMinutes", "EveryDayStartTime", "EveryDayEndTime", "RequiredPersonnel"
 
     @classmethod
     def get_primary_key_columns_names(cls):
-        return ("TaskID",)
+        return "TaskID",
 
     @classmethod
-    def is_autoincrement(cls):
+    def is_autoincrement(cls) -> bool:
         return True
 
     def __repr__(self):

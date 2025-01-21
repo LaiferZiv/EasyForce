@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime,timedelta
 
 from EasyForce.common.constants import *
 
@@ -186,19 +186,41 @@ def extract_match_from_text(selected_text, candidates):
             return candidate
     raise ValueError("No matching candidate found in the selected text.")
 
-def get_datetime_input(prompt,default_delta = None, time_format = "%Y-%m-%d %H:%M"):
+def get_datetime_input(prompt, default_delta=None, time_format="%Y-%m-%d %H:%M"):
+    """
+    Prompts the user for a datetime input and handles cases where the user presses Enter.
+    - If the user presses Enter:
+      - Returns the current time if `default_delta` is None.
+      - Returns the current time + `default_delta` if `default_delta` is provided.
+
+    Args:
+        prompt (str): The prompt message to show to the user.
+        default_delta (timedelta or None): The default time difference to add if the user presses Enter.
+        time_format (str): The expected format of the datetime input.
+
+    Returns:
+        list: [Boolean indicating if the user provided input, datetime object of the result].
+    """
     while True:
         user_input = input(prompt).strip()
-        if user_input == "" and time_format == "%Y-%m-%d %H:%M":
-            return [False,datetime.now() + default_delta]
-        elif user_input == "" and time_format == "%H:%M":
-            return [False,datetime.now() + default_delta]
-        try:
-            return [True,datetime.strptime(user_input, time_format)]
-        except ValueError:
+        if user_input == "":
+            # Handle Enter case
+            now = datetime.now()
+            if default_delta is None:
+                # Return the current time if no default_delta is provided
+                return [False, now]
+            else:
+                # Return current time + default_delta
+                return [False, now + default_delta]
+        else:
+            try:
+                # Parse user input based on the given time_format
+                dt_value = datetime.strptime(user_input, time_format)
+                return [True, dt_value]
+            except ValueError:
                 if time_format == "%Y-%m-%d %H:%M":
-                    print("invalid input. use format yyyy-mm-dd hh:mm")
+                    print("Invalid input. Please use the format: YYYY-MM-DD HH:MM.")
                 elif time_format == "%H:%M":
-                    print("invalid input. use format hh:mm")
+                    print("Invalid input. Please use the format: HH:MM.")
                 else:
-                    print("invalid input.")
+                    print("Invalid input.")
