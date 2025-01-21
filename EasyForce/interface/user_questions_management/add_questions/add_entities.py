@@ -1,6 +1,6 @@
 from datetime import timedelta
 from EasyForce.common.constants import *
-from EasyForce.data_mangement.data_modification import add_record
+from EasyForce.data_mangement.data_modification_old import add_record
 from EasyForce.common.utils import questions, is_positive_integer, is_number, \
     yes_no_question, get_datetime_input
 from EasyForce.data_mangement.read_db import get_primary_key_column_names, \

@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from EasyForce.common.constants import *
 from EasyForce.data_mangement.read_db import get_column_values,get_primary_key_val_by_unique_column_val
-from EasyForce.data_mangement.data_modification import add_record
+from EasyForce.data_mangement.data_modification_old import add_record
 from EasyForce.interface.user_questions_management.general_questions import ask_closed_ended_question,ask_open_ended_question
 from EasyForce.common.utils import is_positive_integer, yes_no_question, get_datetime_input
 
