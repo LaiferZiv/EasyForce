@@ -194,6 +194,48 @@ class BaseEntity:
 
         return results
 
+    @classmethod
+    def get_all_by_columns_values(cls, filters: Dict[str, Any]) -> Optional[list]:
+        """
+        Fetches all entities where the given column-value pairs match.
+
+        Args:
+            filters (Dict[str, Any]): A dictionary where keys are column names and values are the values to filter by.
+
+        Returns:
+            list: A list of entity instances matching the filters.
+            None: If no rows match or if the columns in the filters don't exist.
+        """
+        table_name = cls.get_table_name()
+        columns = cls.get_columns()
+
+        # 1) Validate that all filter keys are valid columns
+        for column_name in filters.keys():
+            if column_name not in columns:
+                print(f"Error: Column '{column_name}' does not exist in table '{table_name}'.")
+                return None
+
+        # 2) Construct the WHERE clause and parameters
+        where_clause = " AND ".join([f"{col} = ?" for col in filters.keys()])
+        values = list(filters.values())
+
+        # 3) Execute the query
+        with cls._get_connection() as conn:
+            cursor = conn.cursor()
+            query = f"SELECT {', '.join(columns)} FROM {table_name} WHERE {where_clause}"
+            try:
+                cursor.execute(query, values)
+                rows = cursor.fetchall()
+            except sqlite3.Error as e:
+                print(f"Database error while filtering by columns {filters}: {e}")
+                return None
+
+        # 4) Return results as entity instances
+        if not rows:
+            return []
+
+        return [cls(**dict(zip(columns, row))) for row in rows]
+
 
     def add(self) -> Union["BaseEntity", None]:
         """

@@ -3,8 +3,12 @@ relationships_classes.py
 
 Relationship (bridge) tables, also only calling .add(), .delete(), etc. internally.
 """
+from typing import Union
+from datetime import datetime
 
 from EasyForce.data_mangement.data_structure.data_modification import BaseEntity
+from EasyForce.data_mangement.data_structure.entities_classes import TimeRange
+
 
 class Presence(BaseEntity):
     SoldierTeamTaskType: str
@@ -36,6 +40,26 @@ class Presence(BaseEntity):
             f"isActive={getattr(self, 'isActive', None)})>"
         )
 
+    def add(self) -> Union["BaseEntity", None]:
+        new_time_range = TimeRange.get_by_id({"TimeID": self.TimeID})
+        same_entities = Presence.get_all_by_columns_values({"SoldierTeamTaskType":self.SoldierTeamTaskType,"SoldierTeamTaskID":self.SoldierTeamTaskID})
+        if not same_entities:
+            return super().add()
+        tmp = None
+        for old_entity in same_entities:
+            old_time_range = TimeRange.get_by_id({"TimeID":old_entity.TimeID})
+            if self.isActive == old_entity.isActive:
+                if new_time_range.EndDateTime < old_time_range.StartDateTime or \
+                   new_time_range.StartDateTime > old_time_range.EndDateTime: #No blending range
+                    tmp = super().add()
+                else:
+                    new_start = min(new_time_range.StartDateTime,new_time_range.EndDateTime,old_time_range.StartDateTime,old_time_range.EndDateTime)
+                    new_end = max(new_time_range.StartDateTime,new_time_range.EndDateTime,old_time_range.StartDateTime,old_time_range.EndDateTime)
+                    new_time_range = TimeRange(**{"StartDateTime": new_start, "EndDateTime": new_end}).add()
+                    self.TimeID = new_time_range.TimeID
+                    old_entity.delete()
+                    tmp = super().add()
+        return tmp
 
 class SoldierRole(BaseEntity):
     SoldierID: int
@@ -62,7 +86,6 @@ class SoldierRole(BaseEntity):
             f"<SoldierRole(SoldierID={getattr(self, 'SoldierID', None)}, "
             f"RoleID={getattr(self, 'RoleID', None)})>"
         )
-
 
 class TaskRole(BaseEntity):
     TaskType: str
@@ -98,7 +121,6 @@ class TaskRole(BaseEntity):
             f"RoleEnforcementType={getattr(self, 'RoleEnforcementType', None)})>"
         )
 
-
 class CurrentTaskAssignment(BaseEntity):
     TaskType: str
     TaskID: int
@@ -129,7 +151,6 @@ class CurrentTaskAssignment(BaseEntity):
             f"SoldierOrTeamID={getattr(self, 'SoldierOrTeamID', None)}, "
             f"TimeID={getattr(self, 'TimeID', None)})>"
         )
-
 
 class TaskHistory(BaseEntity):
     HistoryID: int
