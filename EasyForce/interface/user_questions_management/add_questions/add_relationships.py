@@ -156,7 +156,12 @@ def add_TaskRole_questions(table_type, table_data, entity_type):
                         MinRequiredCount=1,
                         RoleEnforcementType=1 if enforcement_type == ADD else 0
                     )
-                    tr.add()
+                    existed_tr = tr.get_by_id({"TaskType":table_type, "TaskID":table_data["TaskID"],"SoldierOrRole":SOLDIER_TABLE,"SoldierOrRoleID":soldier.SoldierID})
+                    if existed_tr:
+                        existed_tr.RoleEnforcementType=1 if enforcement_type == ADD else 0
+                        existed_tr.update()
+                    else:
+                        tr.add()
 
             if not yes_no_question("Add another team?"):
                 break
