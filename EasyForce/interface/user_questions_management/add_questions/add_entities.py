@@ -32,17 +32,20 @@ def add_Team_questions(soldier_name=None):
     if soldier_name:
         question = f"Please enter {soldier_name}'s team name: "
 
-    team_name = ask_open_ended_question(question, "Team name", previous_question=(not bool(soldier_name)))
-    if not team_name:
-        return None
+    while True:
+        team_name = ask_open_ended_question(question, "Team name", previous_question=(not bool(soldier_name)))
+        if not Team.get_column_values("TeamName") or team_name not in Team.get_column_values("TeamName"):
+            break
+        else:
+            print(f"The team name {team_name} already exists. Please use a unique name")
 
     # Create and .add() -> DB is accessed inside .add()
     new_team = Team(TeamName=team_name)
-    new_team.add()
-    if not new_team.TeamID:
+    if not new_team.add():
         return None
 
     team_id = new_team.TeamID
+    print(new_team)
     if not soldier_name:
         prompt = f"add soldiers to {new_team.TeamName} team"
         while True:
@@ -71,7 +74,10 @@ def add_Soldier_questions(team_name=None):
             print("Soldier ID must be positive integer.")
         else:
             soldier_id = int(soldier_id)
-            break
+            if Soldier.get_by_id({"SoldierID":soldier_id}):
+                print("This soldier ID already exists.")
+            else:
+                break
 
     data = {
         "FullName": soldier_name,
@@ -110,8 +116,7 @@ def add_Soldier_questions(team_name=None):
 
     # Create soldier
     new_soldier = Soldier(**data)
-    new_soldier.add()
-    if not new_soldier.SoldierID:
+    if not new_soldier.add():
         return None
 
     # Add TimeRange
@@ -124,15 +129,11 @@ def add_Role_questions(table, table_data):
         if yes_no_question(f"add {table_data['FullName']} a role"):
             questions(SOLDIER_ROLE_TABLE, ADD, table_data)
     elif table in (TEMPORARY_TASK_TABLE, RECURRING_TASK_TABLE):
-        if yes_no_question("add role/soldier restrictions?"):
-            if yes_no_question("add specific roles that MUST be included?"):
-                questions(TASK_ROLE_TABLE, ADD, table, table_data, ROLE_TABLE, ADD)
-            if yes_no_question("add specific roles that CANNOT be included?"):
-                questions(TASK_ROLE_TABLE, ADD, table, table_data, ROLE_TABLE, DELETE)
-            if yes_no_question("add specific soldiers that MUST be included?"):
-                questions(TASK_ROLE_TABLE, ADD, table, table_data, SOLDIER_TABLE, ADD)
-            if yes_no_question("add specific soldiers that CANNOT be included?"):
-                questions(TASK_ROLE_TABLE, ADD, table, table_data, SOLDIER_TABLE, DELETE)
+        if yes_no_question("add role/soldier restrictions"):
+            if yes_no_question("add role restrictions"):
+                questions(TASK_ROLE_TABLE, ADD, table, table_data, ROLE_TABLE)
+            if yes_no_question("add soldier restrictions"):
+                questions(TASK_ROLE_TABLE, ADD, table, table_data, SOLDIER_TABLE)
 
 
 def add_Task_questions(table):

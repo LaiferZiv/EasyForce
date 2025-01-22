@@ -161,7 +161,7 @@ def questions(table, action, *args):
 def yes_no_question(question):
     from EasyForce.interface.user_questions_management.general_questions import ask_closed_ended_question
 
-    question = f"Would you like to {question} ?"
+    question = f"Would you like to {question}?"
     options = ["Yes","No"]
     if "Yes" == ask_closed_ended_question(question, options):
         return True

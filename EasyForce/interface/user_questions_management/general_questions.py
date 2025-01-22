@@ -27,7 +27,7 @@ def ask_open_ended_question(question,empty_name = "",previous_question = False):
         answer = input(question).strip()
         if not answer:
             print(f"{empty_name} cannot be empty. Please try again.")
-        if answer in {'r','R'}:
+        elif answer in {'r','R'}:
             if previous_question:
                 return None
             else:

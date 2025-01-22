@@ -21,16 +21,16 @@ from EasyForce.interface.user_questions_management.general_questions import (
 
 def add_Presence_questions(table, table_data, pos=""):
     if table == SOLDIER_TABLE:
-        question = f"Add times when {table_data['FullName']} is {pos} the base?"
+        question = f"Add times when {table_data['FullName']} is {pos} the base"
         is_presence = 1 if pos == "in" else 0
-        start_prompt = f"Enter {table_data['FullName']}'s arrival time or Enter: "
-        end_prompt = f"Enter {table_data['FullName']}'s departure time or Enter: "
-        more_prompt = f"Add more times when {table_data['FullName']} is {pos} the base?"
+        start_prompt = f"Enter {table_data['FullName']}'s {'arrival' if is_presence else 'departure'} time (YYYY-MM-DD HH:MM) or Enter for now: "
+        end_prompt = f"Enter {table_data['FullName']}'s {'departure' if is_presence else 'return'} time (YYYY-MM-DD HH:MM) or Enter for unknowing: "
+        more_prompt = f"Add more times when {table_data['FullName']} is {pos} the base"
     else:
-        question = f"Add active time range for {table_data['TaskName']}?"
+        question = f"Add active time range for {table_data['TaskName']}"
         is_presence = 1
-        start_prompt = "Enter the task's start time (YYYY-MM-DD HH:MM) or Enter: "
-        end_prompt = "Enter the task's end time (YYYY-MM-DD HH:MM) or Enter: "
+        start_prompt = "Enter the task's start time (YYYY-MM-DD HH:MM) or Enter for now: "
+        end_prompt = "Enter the task's end time (YYYY-MM-DD HH:MM) or Enter for unknowing: "
         more_prompt = "Add more times for the task's presence?"
 
     if yes_no_question(question):
@@ -54,7 +54,7 @@ def add_Presence_questions(table, table_data, pos=""):
             )
             presence_obj.add()
 
-            if (not start_dt[0] and not end_dt[0]) or yes_no_question(more_prompt):
+            if (not start_dt[0] and not end_dt[0]) or not yes_no_question(more_prompt):
                 break
 
 
@@ -62,7 +62,7 @@ def add_SoldierRole_questions(table_data):
     soldier_id = table_data["SoldierID"]
     soldier_name = table_data["FullName"]
     while True:
-        role_name = ask_open_ended_question(f"{soldier_name}'s role:", "Role name")
+        role_name = ask_open_ended_question(f"{soldier_name}'s role: ", "Role name")
         if not role_name:
             break
 
@@ -78,20 +78,15 @@ def add_SoldierRole_questions(table_data):
         sr = SoldierRole(SoldierID=soldier_id, RoleID=role_id)
         sr.add()
 
-        if not yes_no_question(f"add {soldier_name} another role?"):
+        if not yes_no_question(f"add {soldier_name} another role"):
             break
 
 
-def add_TaskRole_questions(table_type, table_data, entity_type, enforcement_type):
-    def add_role():
-        existing_roles = Role.get_all()
-        if not existing_roles:
-            print("No roles to choose from.")
-            return
-        role_names = [r.RoleName for r in existing_roles]
-
+def add_TaskRole_questions(table_type, table_data, entity_type):
+    def add_role(enforcement_type):
         while True:
             if not role_names:
+                print("No roles to choose from.")
                 break
             chosen = ask_closed_ended_question("Select a role:", role_names)
             role_names.remove(chosen)
@@ -101,7 +96,7 @@ def add_TaskRole_questions(table_type, table_data, entity_type, enforcement_type
             min_required_count = 0
             if enforcement_type == ADD:
                 while True:
-                    val = ask_open_ended_question("How many of this role are essential?", "An amount")
+                    val = ask_open_ended_question("How many of this role are essential: ", "An amount")
                     if is_positive_integer(val):
                         min_required_count = int(val)
                         break
@@ -119,14 +114,10 @@ def add_TaskRole_questions(table_type, table_data, entity_type, enforcement_type
             if not yes_no_question("Add another role?"):
                 break
 
-    def add_soldier():
-        all_sol = Soldier.get_all()
-        if not all_sol:
-            print("No soldiers available.")
-            return
-        display_list = [f"{s.FullName}, ID: {s.SoldierID}" for s in all_sol]
+    def add_soldier(enforcement_type):
         while True:
             if not display_list:
+                print("No soldiers available.")
                 break
             chosen = ask_closed_ended_question("Choose a soldier:", display_list)
             display_list.remove(chosen)
@@ -146,9 +137,19 @@ def add_TaskRole_questions(table_type, table_data, entity_type, enforcement_type
                 break
 
     if entity_type == SOLDIER_TABLE:
-        add_soldier()
+        all_sol = Soldier.get_all()
+        display_list = [f"{s.FullName}, ID: {s.SoldierID}" for s in all_sol]
+        if yes_no_question("add specific soldiers that MUST be included?"):
+            add_soldier(ADD)
+        if yes_no_question("add specific soldiers that CANNOT be included?"):
+            add_soldier(DELETE)
     else:
-        add_role()
+        existing_roles = Role.get_all()
+        role_names = [r.RoleName for r in existing_roles]
+        if yes_no_question("add specific roles that MUST be included?"):
+            add_role(ADD)
+        if yes_no_question("add specific roles that CANNOT be included?"):
+            add_role(DELETE)
 
 
 def add_CurrentTaskAssignment_questions(*args):

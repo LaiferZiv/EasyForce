@@ -110,6 +110,45 @@ class BaseEntity:
 
         return [cls(**dict(zip(columns, row))) for row in rows]
 
+    @classmethod
+    def get_column_values(cls, column_name: str) -> Optional[list]:
+        """
+        Retrieves all values from a specified column in the table.
+
+        Args:
+            column_name (str): The name of the column to retrieve values from.
+
+        Returns:
+            list: A list of values from the specified column if it exists and contains values.
+            None: If the column doesn't exist or contains no values.
+        """
+        table_name = cls.get_table_name()
+        columns = cls.get_columns()
+
+        # Check if the column exists in the table
+        if column_name not in columns:
+            print(f"Error: Column '{column_name}' does not exist in table '{table_name}'.")
+            return None
+
+        with cls._get_connection() as conn:
+            cursor = conn.cursor()
+
+            try:
+                # Query to fetch all values from the specified column
+                query = f"SELECT {column_name} FROM {table_name}"
+                cursor.execute(query)
+                rows = cursor.fetchall()
+
+                if rows:
+                    # Return a flat list of values
+                    return [row[0] for row in rows]
+                else:
+                    print(f"No values found in column '{column_name}' of table '{table_name}'.")
+                    return None
+            except sqlite3.Error as e:
+                print(f"Database error while retrieving column '{column_name}': {e}")
+                return None
+
     def add(self) -> Union["BaseEntity", None]:
         """
         Inserts a new row into the database.
