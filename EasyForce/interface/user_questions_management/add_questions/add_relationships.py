@@ -144,16 +144,19 @@ def add_TaskRole_questions(table_type, table_data, entity_type):
             chosen = ask_closed_ended_question("Choose a team:", display_list)
             display_list.remove(chosen)
             team_id = Team.get_by_unique_name(chosen).TeamID
-            soldiers_id_in_team = Soldier.
-            tr = TaskRole(
-                TaskType=table_type,
-                TaskID=table_data["TaskID"],
-                SoldierOrRole=SOLDIER_TABLE,
-                SoldierOrRoleID=soldier_id,
-                MinRequiredCount=1,
-                RoleEnforcementType=1 if enforcement_type == ADD else 0
-            )
-            tr.add()
+            soldiers_in_team = Soldier.get_all_by_column_value("TeamID",team_id)
+
+            if soldiers_in_team:
+                for soldier in soldiers_in_team:
+                    tr = TaskRole(
+                        TaskType=table_type,
+                        TaskID=table_data["TaskID"],
+                        SoldierOrRole=SOLDIER_TABLE,
+                        SoldierOrRoleID=soldier.SoldierID,
+                        MinRequiredCount=1,
+                        RoleEnforcementType=1 if enforcement_type == ADD else 0
+                    )
+                    tr.add()
 
             if not yes_no_question("Add another team?"):
                 break
@@ -165,7 +168,7 @@ def add_TaskRole_questions(table_type, table_data, entity_type):
             add_soldier(ADD)
         if yes_no_question("add specific soldiers that CANNOT be included?"):
             add_soldier(DELETE)
-    elif entity_type == SOLDIER_TABLE:
+    elif entity_type == ROLE_TABLE:
         existing_roles = Role.get_all()
         role_names = [r.RoleName for r in existing_roles]
         if yes_no_question("add specific roles that MUST be included?"):
@@ -173,12 +176,12 @@ def add_TaskRole_questions(table_type, table_data, entity_type):
         if yes_no_question("add specific roles that CANNOT be included?"):
             add_role(DELETE)
     else: #Team
-        all_team = Soldier.get_all()
-        display_list = [f"{s.FullName}, ID: {s.SoldierID}" for s in all_team]
+        all_team = Team.get_all()
+        display_list = [f"{t.TeamName}" for t in all_team]
         if yes_no_question("add specific teams that MUST be included?"):
-            add_soldier(ADD)
+            add_team(ADD)
         if yes_no_question("add specific teams that CANNOT be included?"):
-            add_soldier(DELETE)
+            add_team(DELETE)
 
 
 

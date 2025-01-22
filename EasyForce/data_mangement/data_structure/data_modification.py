@@ -143,7 +143,6 @@ class BaseEntity:
                     # Return a flat list of values
                     return [row[0] for row in rows]
                 else:
-                    print(f"No values found in column '{column_name}' of table '{table_name}'.")
                     return None
             except sqlite3.Error as e:
                 print(f"Database error while retrieving column '{column_name}': {e}")

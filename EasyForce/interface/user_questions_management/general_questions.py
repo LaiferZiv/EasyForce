@@ -39,18 +39,19 @@ def ask_for_name(name):
     question = f"Please enter the {name} name ('R' to return): "
     return ask_open_ended_question(question,name,previous_question=True)
 
-def ask_closed_ended_question(question, options, previous_question = False):
+def ask_closed_ended_question(question, original_options, previous_question = False):
     """
     Displays a question with its options, gets user input, and returns the selected option number.
 
     Args:
         question (str): The question to display.
-        options (list): A list of possible answers.
+        original_options (list): A list of possible answers.
         previous_question(bool): A bool indicates to add Return option
 
     Returns:
         str: answer.
     """
+    options = original_options[::]
     if previous_question:
         options.append("Return")
     print(question)

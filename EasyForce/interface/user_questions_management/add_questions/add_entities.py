@@ -45,7 +45,6 @@ def add_Team_questions(soldier_name=None):
         return None
 
     team_id = new_team.TeamID
-    print(new_team)
     if not soldier_name:
         prompt = f"add soldiers to {new_team.TeamName} team"
         while True:
@@ -130,13 +129,21 @@ def add_Role_questions(table, table_data):
             questions(SOLDIER_ROLE_TABLE, ADD, table_data)
     elif table in (TEMPORARY_TASK_TABLE, RECURRING_TASK_TABLE):
         if yes_no_question("add any task restrictions"):
-            chosen = ask_closed_ended_question("Which task restrictions would you like to add:",["Role","Team","Soldier"],True)
-            if chosen == "Role":
-                questions(TASK_ROLE_TABLE, ADD, table, table_data, ROLE_TABLE)
-            elif chosen == "Team":
-                questions(TASK_ROLE_TABLE, ADD, table, table_data, TEAM_TABLE)
-            elif chosen == "Soldier":
-                questions(TASK_ROLE_TABLE, ADD, table, table_data, SOLDIER_TABLE)
+            options = ["Role","Team","Soldier"]
+            while options:
+                chosen = ask_closed_ended_question("Which task restrictions would you like to add:",options,True)
+                if chosen == "Role":
+                    questions(TASK_ROLE_TABLE, ADD, table, table_data, ROLE_TABLE)
+                    options.remove("Role")
+                elif chosen == "Team":
+                    questions(TASK_ROLE_TABLE, ADD, table, table_data, TEAM_TABLE)
+                    options.remove("Team")
+                elif chosen == "Soldier":
+                    questions(TASK_ROLE_TABLE, ADD, table, table_data, SOLDIER_TABLE)
+                    options.remove("Soldier")
+                else:
+                    break
+
 
 
 def add_Task_questions(table):
