@@ -149,6 +149,53 @@ class BaseEntity:
                 print(f"Database error while retrieving column '{column_name}': {e}")
                 return None
 
+    @classmethod
+    def get_all_by_column_value(cls, column_name: str, value: Any) -> Optional[list]:
+        """
+        Returns a list of all entities where 'column_name' = value.
+        If 'column_name' does not exist or no rows match, returns None.
+
+        Args:
+            column_name (str): The name of the column to filter by.
+            value (Any): The value to match in the specified column.
+
+        Returns:
+            list: A list of entity instances if rows match.
+            None: If column does not exist or no rows match.
+        """
+        table_name = cls.get_table_name()
+        columns = cls.get_columns()
+
+        # 1) Check if the column name is valid
+        if column_name not in columns:
+            print(f"Error: Column '{column_name}' does not exist in table '{table_name}'.")
+            return None
+
+        # 2) Construct and execute the query
+        with cls._get_connection() as conn:
+            cursor = conn.cursor()
+            query = f"SELECT {', '.join(columns)} FROM {table_name} WHERE {column_name} = ?"
+            try:
+                cursor.execute(query, (value,))
+                rows = cursor.fetchall()
+            except sqlite3.Error as e:
+                print(f"Database error while filtering by column '{column_name}': {e}")
+                return None
+
+        # 3) If no rows, return None
+        if not rows:
+            print(f"No matching records found in '{table_name}' where {column_name} = {value}.")
+            return None
+
+        # 4) Convert rows to entity objects
+        results = []
+        for row in rows:
+            data_dict = dict(zip(columns, row))
+            results.append(cls(**data_dict))
+
+        return results
+
+
     def add(self) -> Union["BaseEntity", None]:
         """
         Inserts a new row into the database.

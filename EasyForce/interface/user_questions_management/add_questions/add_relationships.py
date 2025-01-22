@@ -143,8 +143,8 @@ def add_TaskRole_questions(table_type, table_data, entity_type):
                 break
             chosen = ask_closed_ended_question("Choose a team:", display_list)
             display_list.remove(chosen)
-            team_id = Team.get
-
+            team_id = Team.get_by_unique_name(chosen).TeamID
+            soldiers_id_in_team = Soldier.
             tr = TaskRole(
                 TaskType=table_type,
                 TaskID=table_data["TaskID"],
