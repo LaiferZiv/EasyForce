@@ -4,6 +4,7 @@ entities_classes.py
 Contains classes representing the main entity tables, each inheriting from BaseEntity,
 with typed attributes and without parentheses when returning tuples.
 """
+
 from EasyForce.data_mangement.data_structure.data_modification import BaseEntity
 
 
@@ -55,6 +56,26 @@ class Team(BaseEntity):
     @classmethod
     def is_autoincrement(cls) -> bool:
         return True
+
+    @classmethod
+    def get_by_unique_name(cls, team_name: str):
+        """
+        Fetches a Team by its unique TeamName.
+        Returns a Team instance if found, or None if no match.
+        """
+        columns = cls.get_columns()
+        table_name = cls.get_table_name()
+
+        with cls._get_connection() as conn:
+            cursor = conn.cursor()
+            query = f"SELECT {', '.join(columns)} FROM {table_name} WHERE TeamName = ?"
+            cursor.execute(query, (team_name,))
+            row = cursor.fetchone()
+
+        if row:
+            data_dict = dict(zip(columns, row))
+            return cls(**data_dict)
+        return None
 
     def __repr__(self):
         return (
@@ -112,6 +133,26 @@ class Role(BaseEntity):
     def is_autoincrement(cls) -> bool:
         return True
 
+    @classmethod
+    def get_by_unique_name(cls, role_name: str):
+        """
+        Fetches a Role by its unique RoleName.
+        Returns a Role instance if found, or None if no match.
+        """
+        columns = cls.get_columns()
+        table_name = cls.get_table_name()
+
+        with cls._get_connection() as conn:
+            cursor = conn.cursor()
+            query = f"SELECT {', '.join(columns)} FROM {table_name} WHERE RoleName = ?"
+            cursor.execute(query, (role_name,))
+            row = cursor.fetchone()
+
+        if row:
+            data_dict = dict(zip(columns, row))
+            return cls(**data_dict)
+        return None
+
     def __repr__(self):
         return (
             f"<Role(RoleID={getattr(self, 'RoleID', None)}, "
@@ -139,6 +180,26 @@ class TemporaryTask(BaseEntity):
     @classmethod
     def is_autoincrement(cls) -> bool:
         return True
+
+    @classmethod
+    def get_by_unique_name(cls, task_name: str) :
+        """
+        Fetches a TemporaryTask by its unique TaskName.
+        Returns a TemporaryTask instance if found, or None if no match.
+        """
+        columns = cls.get_columns()
+        table_name = cls.get_table_name()
+
+        with cls._get_connection() as conn:
+            cursor = conn.cursor()
+            query = f"SELECT {', '.join(columns)} FROM {table_name} WHERE TaskName = ?"
+            cursor.execute(query, (task_name,))
+            row = cursor.fetchone()
+
+        if row:
+            data_dict = dict(zip(columns, row))
+            return cls(**data_dict)
+        return None
 
     def __repr__(self):
         return (
@@ -171,6 +232,26 @@ class RecurringTask(BaseEntity):
     @classmethod
     def is_autoincrement(cls) -> bool:
         return True
+
+    @classmethod
+    def get_by_unique_name(cls, task_name: str):
+        """
+        Fetches a RecurringTask by its unique TaskName.
+        Returns a RecurringTask instance if found, or None if no match.
+        """
+        columns = cls.get_columns()
+        table_name = cls.get_table_name()
+
+        with cls._get_connection() as conn:
+            cursor = conn.cursor()
+            query = f"SELECT {', '.join(columns)} FROM {table_name} WHERE TaskName = ?"
+            cursor.execute(query, (task_name,))
+            row = cursor.fetchone()
+
+        if row:
+            data_dict = dict(zip(columns, row))
+            return cls(**data_dict)
+        return None
 
     def __repr__(self):
         return (

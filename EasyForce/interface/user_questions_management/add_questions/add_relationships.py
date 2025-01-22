@@ -9,7 +9,7 @@ from datetime import timedelta
 from EasyForce.data_mangement.data_structure.relationships_classes import (
     Presence, SoldierRole, TaskRole
 )
-from EasyForce.data_mangement.data_structure.entities_classes import TimeRange, Soldier, Role
+from EasyForce.data_mangement.data_structure.entities_classes import TimeRange, Soldier, Role, Team
 from EasyForce.common.constants import *
 from EasyForce.common.utils import (
     is_positive_integer, yes_no_question, get_datetime_input
@@ -136,6 +136,28 @@ def add_TaskRole_questions(table_type, table_data, entity_type):
             if not yes_no_question("Add another soldier?"):
                 break
 
+    def add_team(enforcement_type):
+        while True:
+            if not display_list:
+                print("No teams available.")
+                break
+            chosen = ask_closed_ended_question("Choose a team:", display_list)
+            display_list.remove(chosen)
+            team_id = Team.get
+
+            tr = TaskRole(
+                TaskType=table_type,
+                TaskID=table_data["TaskID"],
+                SoldierOrRole=SOLDIER_TABLE,
+                SoldierOrRoleID=soldier_id,
+                MinRequiredCount=1,
+                RoleEnforcementType=1 if enforcement_type == ADD else 0
+            )
+            tr.add()
+
+            if not yes_no_question("Add another team?"):
+                break
+
     if entity_type == SOLDIER_TABLE:
         all_sol = Soldier.get_all()
         display_list = [f"{s.FullName}, ID: {s.SoldierID}" for s in all_sol]
@@ -143,13 +165,21 @@ def add_TaskRole_questions(table_type, table_data, entity_type):
             add_soldier(ADD)
         if yes_no_question("add specific soldiers that CANNOT be included?"):
             add_soldier(DELETE)
-    else:
+    elif entity_type == SOLDIER_TABLE:
         existing_roles = Role.get_all()
         role_names = [r.RoleName for r in existing_roles]
         if yes_no_question("add specific roles that MUST be included?"):
             add_role(ADD)
         if yes_no_question("add specific roles that CANNOT be included?"):
             add_role(DELETE)
+    else: #Team
+        all_team = Soldier.get_all()
+        display_list = [f"{s.FullName}, ID: {s.SoldierID}" for s in all_team]
+        if yes_no_question("add specific teams that MUST be included?"):
+            add_soldier(ADD)
+        if yes_no_question("add specific teams that CANNOT be included?"):
+            add_soldier(DELETE)
+
 
 
 def add_CurrentTaskAssignment_questions(*args):

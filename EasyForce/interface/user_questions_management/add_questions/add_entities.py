@@ -129,10 +129,13 @@ def add_Role_questions(table, table_data):
         if yes_no_question(f"add {table_data['FullName']} a role"):
             questions(SOLDIER_ROLE_TABLE, ADD, table_data)
     elif table in (TEMPORARY_TASK_TABLE, RECURRING_TASK_TABLE):
-        if yes_no_question("add role/soldier restrictions"):
-            if yes_no_question("add role restrictions"):
+        if yes_no_question("add any task restrictions"):
+            chosen = ask_closed_ended_question("Which task restrictions would you like to add:",["Role","Team","Soldier"],True)
+            if chosen == "Role":
                 questions(TASK_ROLE_TABLE, ADD, table, table_data, ROLE_TABLE)
-            if yes_no_question("add soldier restrictions"):
+            elif chosen == "Team":
+                questions(TASK_ROLE_TABLE, ADD, table, table_data, TEAM_TABLE)
+            elif chosen == "Soldier":
                 questions(TASK_ROLE_TABLE, ADD, table, table_data, SOLDIER_TABLE)
 
 
