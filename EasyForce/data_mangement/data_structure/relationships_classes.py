@@ -5,15 +5,17 @@ Relationship (bridge) tables, also only calling .add(), .delete(), etc. internal
 """
 from typing import Union
 
+from EasyForce.common.constants import PRESENCE_TABLE, TIME_RANGE_TABLE
 from EasyForce.data_mangement.data_structure.data_modification import BaseEntity
 from EasyForce.data_mangement.data_structure.entities_classes import TimeRange
+from EasyForce.data_mangement.read_db import display_table
 
 
 class Presence(BaseEntity):
-    SoldierTeamTaskType: str
-    SoldierTeamTaskID: int
-    TimeID: int
-    isActive: int
+    SoldierTeamTaskType: str= None
+    SoldierTeamTaskID: int= None
+    TimeID: int= None
+    isActive: int= None
 
     @classmethod
     def get_table_name(cls) -> str:
@@ -40,6 +42,16 @@ class Presence(BaseEntity):
         )
 
     def add(self) -> Union["BaseEntity", None]:
+        def get_time_id(start_time,end_time):
+            same_time_range = TimeRange.get_all_by_columns_values({"StartDateTime": start_time, "EndDateTime": end_time})
+            if same_time_range:
+                same_time_range = same_time_range[0].copy()
+            else:
+                same_time_range = TimeRange(**{"StartDateTime": start_time, "EndDateTime": end_time})
+                if start_time < end_time:
+                    same_time_range.add()
+            return same_time_range.TimeID
+
         new_time_range = TimeRange.get_by_id({"TimeID": self.TimeID})
         same_entities = Presence.get_all_by_columns_values({"SoldierTeamTaskType":self.SoldierTeamTaskType,"SoldierTeamTaskID":self.SoldierTeamTaskID})
         if not same_entities:
@@ -47,58 +59,54 @@ class Presence(BaseEntity):
         tmp = None
         for old_entity in same_entities:
             old_time_range = TimeRange.get_by_id({"TimeID":old_entity.TimeID})
-            if new_time_range.EndDateTime < old_time_range.StartDateTime or \
-                    new_time_range.StartDateTime > old_time_range.EndDateTime:  # No blending range
-                tmp = super().add()
-            else: #Has blending range
-                if self.isActive == old_entity.isActive:
+            if not (new_time_range.EndDateTime < old_time_range.StartDateTime or new_time_range.StartDateTime > old_time_range.EndDateTime):  # has blending range
+                if self.isActive == old_entity.isActive: #extend range
                     new_start = min(new_time_range.StartDateTime,new_time_range.EndDateTime,old_time_range.StartDateTime,old_time_range.EndDateTime)
                     new_end = max(new_time_range.StartDateTime,new_time_range.EndDateTime,old_time_range.StartDateTime,old_time_range.EndDateTime)
-                    new_time_range = TimeRange(**{"StartDateTime": new_start, "EndDateTime": new_end}).add()
-                    self.TimeID = new_time_range.TimeID
+                    self.TimeID = get_time_id(new_start,new_end)
                     old_entity.delete()
-                    tmp = super().add()
                 else: #Presence during a time defined as absence, and vice versa
-                    left_time_range = TimeRange(**{"StartDateTime": old_time_range.StartDateTime,"EndDateTime": new_time_range.StartDateTime})
-                    right_time_range = TimeRange(**{"StartDateTime": new_time_range.EndDateTime,"EndDateTime": old_time_range.EndDateTime})
+                    print()
+                    prev_time_id = get_time_id(old_time_range.StartDateTime,new_time_range.StartDateTime)
+                    post_time_id = get_time_id(new_time_range.EndDateTime,old_time_range.EndDateTime)
+                    # [new pried], (old period)
+                    # [ ( ) ] => [ ]
                     if new_time_range.StartDateTime <= old_time_range.StartDateTime <= old_time_range.EndDateTime <= new_time_range.EndDateTime:
                         old_entity.delete()
-                        tmp = super().add()
+                    # ( [ ] ) => ( )[ ]( )
                     elif old_time_range.StartDateTime <= new_time_range.StartDateTime <= new_time_range.EndDateTime <= old_time_range.EndDateTime:
-                        left_time_range.add()
-                        right_time_range.add()
-                        left = old_entity.copy()
-                        left.TimeID = left_time_range.TimeID
-                        right = old_entity.copy()
-                        right.TimeID = right_time_range.TimeID
+                        prev = old_entity.copy()
+                        post = old_entity.copy()
+                        prev.TimeID = prev_time_id
+                        post.TimeID = post_time_id
                         old_entity.delete()
-                        left.add_without_checks()
-                        right.add_without_checks()
-                        tmp = super().add()
+                        prev.add()
+                        post.add()
+                    # [ ( ] ) => [ ]( )
                     elif new_time_range.StartDateTime <= old_time_range.StartDateTime <= new_time_range.EndDateTime <= old_time_range.EndDateTime:
-                        right_time_range.add()
-                        right = old_entity.copy()
-                        right.TimeID = right_time_range.TimeID
+                        post = old_entity.copy()
+                        post.TimeID = post_time_id
                         old_entity.delete()
-                        right.add_without_checks()
-                        tmp = super().add()
-                    else:
-                        left_time_range.add()
-                        left = old_entity.copy()
-                        left.TimeID = left_time_range.TimeID
+                        post.add()
+                    else: # ( [ ) ] => ( )[ ]
+                        prev = old_entity.copy()
+                        prev.TimeID = prev_time_id
                         old_entity.delete()
-                        left.add_without_checks()
-                        tmp = super().add()
-        TimeRange.garbage_collector()
+                        prev.add()
+            print("BEFORE:")
+            display_table(TIME_RANGE_TABLE)
+            display_table(PRESENCE_TABLE)
+            print(self)
+            tmp = super().add()
+            TimeRange.garbage_collector()
+            print("AFTER:")
+            display_table(TIME_RANGE_TABLE)
+            display_table(PRESENCE_TABLE)
         return tmp
 
-    def add_without_checks(self):
-        return super().add()
-
-
 class SoldierRole(BaseEntity):
-    SoldierID: int
-    RoleID: int
+    SoldierID: int= None
+    RoleID: int= None
 
     @classmethod
     def get_table_name(cls) -> str:
@@ -123,12 +131,12 @@ class SoldierRole(BaseEntity):
         )
 
 class TaskRole(BaseEntity):
-    TaskType: str
-    TaskID: int
-    SoldierOrRole: str
-    SoldierOrRoleID: int
-    MinRequiredCount: int
-    RoleEnforcementType: int
+    TaskType: str= None
+    TaskID: int= None
+    SoldierOrRole: str= None
+    SoldierOrRoleID: int= None
+    MinRequiredCount: int= None
+    RoleEnforcementType: int= None
 
     @classmethod
     def get_table_name(cls) -> str:
@@ -157,11 +165,11 @@ class TaskRole(BaseEntity):
         )
 
 class CurrentTaskAssignment(BaseEntity):
-    TaskType: str
-    TaskID: int
-    SoldierOrTeamType: str
-    SoldierOrTeamID: int
-    TimeID: int
+    TaskType: str= None
+    TaskID: int= None
+    SoldierOrTeamType: str= None
+    SoldierOrTeamID: int= None
+    TimeID: int= None
 
     @classmethod
     def get_table_name(cls) -> str:
@@ -188,14 +196,14 @@ class CurrentTaskAssignment(BaseEntity):
         )
 
 class TaskHistory(BaseEntity):
-    HistoryID: int
-    TaskType: str
-    TaskID: int
-    SoldierOrTeamType: str
-    SoldierOrTeamID: int
-    TaskReputation: str
-    TimeID: int
-    CompletionStatus: str
+    HistoryID: int= None
+    TaskType: str= None
+    TaskID: int= None
+    SoldierOrTeamType: str= None
+    SoldierOrTeamID: int= None
+    TaskReputation: str= None
+    TimeID: int= None
+    CompletionStatus: str= None
 
     @classmethod
     def get_table_name(cls) -> str:

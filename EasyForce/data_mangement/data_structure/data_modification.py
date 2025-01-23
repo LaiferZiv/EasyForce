@@ -286,6 +286,7 @@ class BaseEntity:
             existing = type(self).get_by_id(pk_dict)
             if existing is not None:
                 print("Add Error: A record with these primary key values already exists.")
+                print(pk_dict)
                 return None
 
         table_name = self.get_table_name()

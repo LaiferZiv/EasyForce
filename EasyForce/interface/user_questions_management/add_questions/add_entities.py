@@ -9,7 +9,8 @@ from EasyForce.data_mangement.data_structure.entities_classes import (
     Team, Soldier, TemporaryTask, RecurringTask
 )
 from EasyForce.common.constants import *
-from EasyForce.common.utils import questions, is_positive_integer, is_number, yes_no_question, get_datetime_input
+from EasyForce.common.utils import questions, is_positive_integer, is_number, yes_no_question, \
+    get_hours_input
 from EasyForce.interface.user_questions_management.general_questions import (
     ask_open_ended_question, ask_for_name, ask_closed_ended_question
 )
@@ -144,8 +145,6 @@ def add_Role_questions(table, table_data):
                 else:
                     break
 
-
-
 def add_Task_questions(table):
     data = {}
     t_str = "temporary" if table == TEMPORARY_TASK_TABLE else "recurring"
@@ -182,15 +181,15 @@ def add_Task_questions(table):
                 break
 
         start_prompt = "Time the task starts each day (HH:MM) or Enter for all day: "
-        start_dt = get_datetime_input(start_prompt)
+        start_dt = get_hours_input(start_prompt)
         if not start_dt[0]:
-            e_start = MIDNIGHT
-            e_end = MIDNIGHT
+            e_start = DEFAULT_MORNING_HOUR
+            e_end = DEFAULT_MORNING_HOUR
         else:
             e_start = str(start_dt[1])
             end_prompt = "Time the task ends each day (can be after midnight, HH:MM): "
             while True:
-                end_dt = get_datetime_input(end_prompt)
+                end_dt = get_hours_input(end_prompt)
                 if not end_dt[0]:
                     print("Must specify end time.")
                 else:

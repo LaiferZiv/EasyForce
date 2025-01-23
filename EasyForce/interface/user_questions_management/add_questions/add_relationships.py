@@ -23,20 +23,23 @@ def add_Presence_questions(table, table_data, pos=""):
     if table == SOLDIER_TABLE:
         question = f"Add times when {table_data['FullName']} is {pos} the base"
         is_presence = 1 if pos == "in" else 0
-        start_prompt = f"Enter {table_data['FullName']}'s {'arrival' if is_presence else 'departure'} time (YYYY-MM-DD HH:MM) or Enter for now: "
-        end_prompt = f"Enter {table_data['FullName']}'s {'departure' if is_presence else 'return'} time (YYYY-MM-DD HH:MM) or Enter for unknowing: "
+        start_prompt = f"Enter {table_data['FullName']}'s {'arrival' if is_presence else 'departure'} time (DD/MM/YYYY HH:MM) or Enter for now: "
+        end_prompt = f"Enter {table_data['FullName']}'s {'departure' if is_presence else 'return'} time (DD/MM/YYYY HH:MM) or Enter for unknowing: "
         more_prompt = f"Add more times when {table_data['FullName']} is {pos} the base"
     else:
         question = f"Add active time range for {table_data['TaskName']}"
         is_presence = 1
-        start_prompt = "Enter the task's start time (YYYY-MM-DD HH:MM) or Enter for now: "
-        end_prompt = "Enter the task's end time (YYYY-MM-DD HH:MM) or Enter for unknowing: "
+        start_prompt = "Enter the task's start time (DD/MM/YYYY HH:MM) or Enter for now: "
+        end_prompt = "Enter the task's end time (DD/MM/YYYY HH:MM) or Enter for unknowing: "
         more_prompt = "Add more times for the task's presence?"
 
     if yes_no_question(question):
         while True:
             start_dt = get_datetime_input(start_prompt)
             end_dt = get_datetime_input(end_prompt,default_delta=timedelta(YEAR))
+            if not start_dt[1] < end_dt[1]:
+                print(f"The {'arrival' if is_presence else 'departure'} time must be earlier than the {'departure' if is_presence else 'return'} time.")
+                continue
             # Create TimeRange
             new_range = TimeRange(
                 StartDateTime=str(start_dt[1]),

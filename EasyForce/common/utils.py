@@ -186,45 +186,63 @@ def extract_match_from_text(selected_text, candidates):
             return candidate
     raise ValueError("No matching candidate found in the selected text.")
 
-def get_datetime_input(prompt, default_delta=None, time_format="%Y-%m-%d %H:%M"):
+def get_datetime_input(prompt, default_delta=None) -> list:
     """
-    Prompts the user for a datetime input and handles cases where the user presses Enter.
-    - If the user presses Enter:
-      - Returns the current time if `default_delta` is None.
-      - Returns the current time + `default_delta` if `default_delta` is provided.
-
-    Args:
-        prompt (str): The prompt message to show to the user.
-        default_delta (timedelta or None): The default time difference to add if the user presses Enter.
-        time_format (str): The expected format of the datetime input.
-
-    Returns:
-        list: [Boolean indicating if the user provided input, datetime object of the result].
+    Prompts the user for a date/time in dd/mm/yyyy hh:mm format, but also allows:
+      1) Press Enter => use 'now' or 'now + default_delta' (truncated to minute, in ISO).
+      2) If user typed dd/mm/yyyy only (no space => e.g. '27/02/2025'),
+         we append a default hour (from constants), e.g. '08:00'.
+      3) If user typed full 'dd/mm/yyyy hh:mm', parse it directly.
+    Returns [bool, iso_string]:
+      - bool indicates if the user typed something (True) or pressed Enter (False).
+      - iso_string is the ISO 8601 string.
     """
     while True:
         user_input = input(prompt).strip()
-        if user_input == "":
-            # Handle Enter case
-            now = datetime.now().replace(second=0, microsecond=0)
-            if default_delta is None:
-                # Return the current time if no default_delta is provided
-                return [False, now]
-            else:
-                # Return current time + default_delta
-                future_time = (now + default_delta).replace(second=0, microsecond=0)
-                return [False, future_time]
+        if not user_input:
+            # The user pressed Enter => return 'now' or 'now+delta', truncated to minute, in ISO
+            now = datetime.now().replace()
+            if default_delta:
+                now = (now + default_delta).replace()
+            return [False, now.isoformat().replace('T',' ')]
         else:
-            try:
-                # Parse user input based on the given time_format
-                dt_value = datetime.strptime(user_input, time_format)
-                return [True, dt_value]
-            except ValueError:
-                if time_format == "%Y-%m-%d %H:%M":
-                    print("Invalid input. Please use the format: YYYY-MM-DD HH:MM.")
-                elif time_format == "%H:%M":
-                    print("Invalid input. Please use the format: HH:MM.")
-                else:
-                    print("Invalid input.")
+            # Check if user input has a space => dd/mm/yyyy hh:mm
+            if ' ' in user_input:
+                # Parse exactly dd/mm/yyyy hh:mm
+                try:
+                    dt_value = datetime.strptime(user_input, "%d/%m/%Y %H:%M")
+                    return [True, dt_value.isoformat().replace('T',' ')]
+                except ValueError:
+                    print("Invalid input. Please use dd/mm/yyyy hh:mm or just dd/mm/yyyy.")
+            else:
+                # We assume user typed only dd/mm/yyyy => append default hour
+                # e.g. '27/02/2025' + ' 08:00'
+                candidate = user_input + " " + DEFAULT_MORNING_HOUR
+                try:
+                    dt_value = datetime.strptime(candidate, "%d/%m/%Y %H:%M")
+                    return [True, dt_value.isoformat().replace('T',' ')]
+                except ValueError:
+                    print("Invalid input. Please use dd/mm/yyyy hh:mm or just dd/mm/yyyy.")
+
+def get_hours_input(prompt: str):
+    """
+    Prompts for a time in HH:MM format.
+    If the user presses Enter, returns [False, None].
+    Otherwise, parses HH:MM. On success, returns [True, "HH:MM"].
+    On failure, prints an error and repeats.
+    """
+    while True:
+        user_input = input(prompt).strip()
+        if not user_input:
+            # User pressed Enter => no input
+            return [False, None]
+        try:
+            parsed_time = datetime.strptime(user_input, "%H:%M")
+            # Convert back to HH:MM to store as string
+            hhmm_str = parsed_time.strftime("%H:%M")
+            return [True, hhmm_str]
+        except ValueError:
+            print("Invalid input. Please use the format HH:MM (00:00 - 23:59).")
 
 def iso_to_ddmmyyyy(time_iso: str) -> str:
     """
@@ -233,11 +251,3 @@ def iso_to_ddmmyyyy(time_iso: str) -> str:
     """
     dt = datetime.fromisoformat(time_iso)      # Parse the ISO string
     return dt.strftime('%d/%m/%Y %H:%M')       # Format to dd/mm/yyyy hh:mm
-
-def ddmmyyyy_to_iso(time_dmy: str) -> str:
-    """
-    Converts a 'dd/mm/yyyy hh:mm' format string (e.g. '27/02/2025 14:15')
-    into an ISO 8601 datetime string (e.g. '2025-02-27T14:15:00').
-    """
-    dt = datetime.strptime(time_dmy, '%d/%m/%Y %H:%M')  # Parse the dd/mm/yyyy hh:mm string
-    return dt.isoformat()                               # Convert to ISO 8601 string

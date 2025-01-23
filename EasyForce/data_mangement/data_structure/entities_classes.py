@@ -10,9 +10,9 @@ from EasyForce.common.constants import UNNECESSARILY_TIME_RANGE
 from EasyForce.data_mangement.data_structure.data_modification import BaseEntity
 
 class TimeRange(BaseEntity):
-    TimeID: int
-    StartDateTime: str
-    EndDateTime: str
+    TimeID: int = None
+    StartDateTime: str = None
+    EndDateTime: str = None
 
     @classmethod
     def get_table_name(cls) -> str:
@@ -37,13 +37,12 @@ class TimeRange(BaseEntity):
         current_task_assignment_table_time_ids = CurrentTaskAssignment.get_column_values("TimeID")
         task_history_table_time_ids = TaskHistory.get_column_values("TimeID")
         unified_time_ids = set(presence_table_time_ids) | set(current_task_assignment_table_time_ids) | set(task_history_table_time_ids)
-        print(f"UNIFIED_TIME_IDS: {unified_time_ids}")
         time_range_rows = TimeRange.get_all()
         for row in time_range_rows:
-            print(f"check: {row}")
-            if row.TimeID not in unified_time_ids or \
-               (datetime.strptime(row.EndDateTime, "%Y-%m-%d %H:%M:%S") - datetime.strptime(row.StartDateTime, "%Y-%m-%d %H:%M:%S")) < timedelta(minutes=UNNECESSARILY_TIME_RANGE):
-                print(f"delete {row}")
+            if (row.TimeID not in unified_time_ids or
+                    (datetime.fromisoformat(row.EndDateTime).replace(microsecond=0) -
+                     datetime.fromisoformat(row.StartDateTime).replace(microsecond=0)) <
+                     timedelta(minutes=UNNECESSARILY_TIME_RANGE)):
                 row.delete()
 
     def __repr__(self):
@@ -55,8 +54,8 @@ class TimeRange(BaseEntity):
 
 
 class Team(BaseEntity):
-    TeamID: int
-    TeamName: str
+    TeamID: int = None
+    TeamName: str = None
 
     @classmethod
     def get_table_name(cls) -> str:
@@ -102,9 +101,9 @@ class Team(BaseEntity):
 
 
 class Soldier(BaseEntity):
-    SoldierID: int
-    FullName: str
-    TeamID: int
+    SoldierID: int = None
+    FullName: str= None
+    TeamID: int= None
 
     @classmethod
     def get_table_name(cls) -> str:
@@ -131,8 +130,8 @@ class Soldier(BaseEntity):
 
 
 class Role(BaseEntity):
-    RoleID: int
-    RoleName: str
+    RoleID: int= None
+    RoleName: str= None
 
     @classmethod
     def get_table_name(cls) -> str:
@@ -178,9 +177,9 @@ class Role(BaseEntity):
 
 
 class TemporaryTask(BaseEntity):
-    TaskID: int
-    TaskName: str
-    TaskReputation: str
+    TaskID: int= None
+    TaskName: str= None
+    TaskReputation: str= None
 
     @classmethod
     def get_table_name(cls) -> str:
@@ -227,12 +226,12 @@ class TemporaryTask(BaseEntity):
 
 
 class RecurringTask(BaseEntity):
-    TaskID: int
-    TaskName: str
-    ShiftDurationInMinutes: int
-    EveryDayStartTime: str
-    EveryDayEndTime: str
-    RequiredPersonnel: int
+    TaskID: int= None
+    TaskName: str= None
+    ShiftDurationInMinutes: int= None
+    EveryDayStartTime: str= None
+    EveryDayEndTime: str= None
+    RequiredPersonnel: int= None
 
     @classmethod
     def get_table_name(cls) -> str:
