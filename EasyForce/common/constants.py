@@ -1,4 +1,6 @@
 #Entities
+from unittest.mock import DEFAULT
+
 TIME_RANGE_TABLE = "TimeRange"
 TEAM_TABLE = "Team"
 SOLDIER_TABLE = "Soldier"
@@ -23,3 +25,4 @@ MIN_IN_HOUR = 60
 DAY = 24
 YEAR = 365
 MIDNIGHT = "00:00"
+UNNECESSARILY_TIME_RANGE = 2 #In minutes

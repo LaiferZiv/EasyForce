@@ -4,9 +4,10 @@ entities_classes.py
 Contains classes representing the main entity tables, each inheriting from BaseEntity,
 with typed attributes and without parentheses when returning tuples.
 """
+from datetime import datetime,timedelta
 
+from EasyForce.common.constants import UNNECESSARILY_TIME_RANGE
 from EasyForce.data_mangement.data_structure.data_modification import BaseEntity
-
 
 class TimeRange(BaseEntity):
     TimeID: int
@@ -28,6 +29,22 @@ class TimeRange(BaseEntity):
     @classmethod
     def is_autoincrement(cls) -> bool:
         return True
+    @classmethod
+    def garbage_collector(cls):
+        from EasyForce.data_mangement.data_structure.relationships_classes import Presence, CurrentTaskAssignment, TaskHistory
+
+        presence_table_time_ids = Presence.get_column_values("TimeID")
+        current_task_assignment_table_time_ids = CurrentTaskAssignment.get_column_values("TimeID")
+        task_history_table_time_ids = TaskHistory.get_column_values("TimeID")
+        unified_time_ids = set(presence_table_time_ids) | set(current_task_assignment_table_time_ids) | set(task_history_table_time_ids)
+        print(f"UNIFIED_TIME_IDS: {unified_time_ids}")
+        time_range_rows = TimeRange.get_all()
+        for row in time_range_rows:
+            print(f"check: {row}")
+            if row.TimeID not in unified_time_ids or \
+               (datetime.strptime(row.EndDateTime, "%Y-%m-%d %H:%M:%S") - datetime.strptime(row.StartDateTime, "%Y-%m-%d %H:%M:%S")) < timedelta(minutes=UNNECESSARILY_TIME_RANGE):
+                print(f"delete {row}")
+                row.delete()
 
     def __repr__(self):
         return (

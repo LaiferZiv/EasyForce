@@ -205,13 +205,14 @@ def get_datetime_input(prompt, default_delta=None, time_format="%Y-%m-%d %H:%M")
         user_input = input(prompt).strip()
         if user_input == "":
             # Handle Enter case
-            now = datetime.now()
+            now = datetime.now().replace(second=0, microsecond=0)
             if default_delta is None:
                 # Return the current time if no default_delta is provided
                 return [False, now]
             else:
                 # Return current time + default_delta
-                return [False, now + default_delta]
+                future_time = (now + default_delta).replace(second=0, microsecond=0)
+                return [False, future_time]
         else:
             try:
                 # Parse user input based on the given time_format

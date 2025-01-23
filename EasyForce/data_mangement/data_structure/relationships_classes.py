@@ -89,10 +89,12 @@ class Presence(BaseEntity):
                         old_entity.delete()
                         left.add_without_checks()
                         tmp = super().add()
+        TimeRange.garbage_collector()
         return tmp
 
     def add_without_checks(self):
         return super().add()
+
 
 class SoldierRole(BaseEntity):
     SoldierID: int

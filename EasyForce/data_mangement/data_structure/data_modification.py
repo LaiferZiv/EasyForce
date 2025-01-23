@@ -128,7 +128,7 @@ class BaseEntity:
         # Check if the column exists in the table
         if column_name not in columns:
             print(f"Error: Column '{column_name}' does not exist in table '{table_name}'.")
-            return None
+            return []
 
         with cls._get_connection() as conn:
             cursor = conn.cursor()
@@ -143,10 +143,10 @@ class BaseEntity:
                     # Return a flat list of values
                     return [row[0] for row in rows]
                 else:
-                    return None
+                    return []
             except sqlite3.Error as e:
                 print(f"Database error while retrieving column '{column_name}': {e}")
-                return None
+                return []
 
     @classmethod
     def get_all_by_column_value(cls, column_name: str, value: Any) -> Optional[list]:
