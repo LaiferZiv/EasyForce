@@ -4,7 +4,6 @@ relationships_classes.py
 Relationship (bridge) tables, also only calling .add(), .delete(), etc. internally.
 """
 from typing import Union
-from datetime import datetime
 
 from EasyForce.data_mangement.data_structure.data_modification import BaseEntity
 from EasyForce.data_mangement.data_structure.entities_classes import TimeRange
@@ -48,18 +47,52 @@ class Presence(BaseEntity):
         tmp = None
         for old_entity in same_entities:
             old_time_range = TimeRange.get_by_id({"TimeID":old_entity.TimeID})
-            if self.isActive == old_entity.isActive:
-                if new_time_range.EndDateTime < old_time_range.StartDateTime or \
-                   new_time_range.StartDateTime > old_time_range.EndDateTime: #No blending range
-                    tmp = super().add()
-                else:
+            if new_time_range.EndDateTime < old_time_range.StartDateTime or \
+                    new_time_range.StartDateTime > old_time_range.EndDateTime:  # No blending range
+                tmp = super().add()
+            else: #Has blending range
+                if self.isActive == old_entity.isActive:
                     new_start = min(new_time_range.StartDateTime,new_time_range.EndDateTime,old_time_range.StartDateTime,old_time_range.EndDateTime)
                     new_end = max(new_time_range.StartDateTime,new_time_range.EndDateTime,old_time_range.StartDateTime,old_time_range.EndDateTime)
                     new_time_range = TimeRange(**{"StartDateTime": new_start, "EndDateTime": new_end}).add()
                     self.TimeID = new_time_range.TimeID
                     old_entity.delete()
                     tmp = super().add()
+                else: #Presence during a time defined as absence, and vice versa
+                    left_time_range = TimeRange(**{"StartDateTime": old_time_range.StartDateTime,"EndDateTime": new_time_range.StartDateTime})
+                    right_time_range = TimeRange(**{"StartDateTime": new_time_range.EndDateTime,"EndDateTime": old_time_range.EndDateTime})
+                    if new_time_range.StartDateTime <= old_time_range.StartDateTime <= old_time_range.EndDateTime <= new_time_range.EndDateTime:
+                        old_entity.delete()
+                        tmp = super().add()
+                    elif old_time_range.StartDateTime <= new_time_range.StartDateTime <= new_time_range.EndDateTime <= old_time_range.EndDateTime:
+                        left_time_range.add()
+                        right_time_range.add()
+                        left = old_entity.copy()
+                        left.TimeID = left_time_range.TimeID
+                        right = old_entity.copy()
+                        right.TimeID = right_time_range.TimeID
+                        old_entity.delete()
+                        left.add_without_checks()
+                        right.add_without_checks()
+                        tmp = super().add()
+                    elif new_time_range.StartDateTime <= old_time_range.StartDateTime <= new_time_range.EndDateTime <= old_time_range.EndDateTime:
+                        right_time_range.add()
+                        right = old_entity.copy()
+                        right.TimeID = right_time_range.TimeID
+                        old_entity.delete()
+                        right.add_without_checks()
+                        tmp = super().add()
+                    else:
+                        left_time_range.add()
+                        left = old_entity.copy()
+                        left.TimeID = left_time_range.TimeID
+                        old_entity.delete()
+                        left.add_without_checks()
+                        tmp = super().add()
         return tmp
+
+    def add_without_checks(self):
+        return super().add()
 
 class SoldierRole(BaseEntity):
     SoldierID: int

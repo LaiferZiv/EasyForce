@@ -224,3 +224,19 @@ def get_datetime_input(prompt, default_delta=None, time_format="%Y-%m-%d %H:%M")
                     print("Invalid input. Please use the format: HH:MM.")
                 else:
                     print("Invalid input.")
+
+def iso_to_ddmmyyyy(time_iso: str) -> str:
+    """
+    Converts an ISO 8601 datetime string (e.g. '2025-02-27T14:15:00')
+    into a 'dd/mm/yyyy hh:mm' format string (e.g. '27/02/2025 14:15').
+    """
+    dt = datetime.fromisoformat(time_iso)      # Parse the ISO string
+    return dt.strftime('%d/%m/%Y %H:%M')       # Format to dd/mm/yyyy hh:mm
+
+def ddmmyyyy_to_iso(time_dmy: str) -> str:
+    """
+    Converts a 'dd/mm/yyyy hh:mm' format string (e.g. '27/02/2025 14:15')
+    into an ISO 8601 datetime string (e.g. '2025-02-27T14:15:00').
+    """
+    dt = datetime.strptime(time_dmy, '%d/%m/%Y %H:%M')  # Parse the dd/mm/yyyy hh:mm string
+    return dt.isoformat()                               # Convert to ISO 8601 string

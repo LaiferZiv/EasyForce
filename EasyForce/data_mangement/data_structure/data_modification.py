@@ -236,6 +236,36 @@ class BaseEntity:
 
         return [cls(**dict(zip(columns, row))) for row in rows]
 
+    def copy(self, copy_primary_keys: bool = True) -> "BaseEntity":
+        """
+        Creates an in-memory copy (clone) of the current entity object.
+
+        :param copy_primary_keys:
+            If True (default), primary key columns will be copied exactly as is.
+            If False, the primary key columns will not be copied (useful if you
+            plan to .add() this object to the database without a conflict).
+
+        :return:
+            A new in-memory instance of the same subclass with columns
+            copied according to the copy_primary_keys parameter.
+        """
+        # Create a blank instance of the same subclass (e.g., TimeRange, Soldier, etc.)
+        new_obj = type(self)()
+
+        columns = self.get_columns()
+        pk_cols = self.get_primary_key_columns_names()
+
+        for col in columns:
+            # If we do not want to copy PK, skip them
+            if not copy_primary_keys and col in pk_cols:
+                continue
+
+            # Retrieve the value from the current (self) object and set it on the new object
+            value = getattr(self, col, None)
+            setattr(new_obj, col, value)
+
+        return new_obj
+
 
     def add(self) -> Union["BaseEntity", None]:
         """
