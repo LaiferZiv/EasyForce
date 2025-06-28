@@ -146,17 +146,18 @@ def questions(table, action, *args):
     }
 
     table_names = initialize_table_names()
-    if table in {"TemporaryTask","RecurringTask"}:
+    if table in {"TemporaryTask", "RecurringTask"}:
         args = (table,)
-    # Check if the provided table name exists in the table_names dictionary,
-    # and if the requested action exists in our actions_mapping.
-    if table in {*table_names.values(), "TaskType","Display"} and action in {*actions_mapping.get(table, {}), "define","table"}:
-        func = actions_mapping[table][action]
+
+    table_actions = actions_mapping.get(table, {})
+    func = table_actions.get(action)
+
+    if func:
         # Call the function with the additional arguments and return its result
         return func(*args)
-    else:
-        print(f"Invalid table or action: table={table}, action={action}")
-        return None
+
+    print(f"Invalid table or action: table={table}, action={action}")
+    return None
 
 def yes_no_question(question):
     from EasyForce.interface.user_questions_management.general_questions import ask_closed_ended_question
