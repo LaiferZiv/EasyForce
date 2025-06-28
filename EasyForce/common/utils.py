@@ -148,12 +148,9 @@ def questions(table, action, *args):
     table_names = initialize_table_names()
     if table in {"TemporaryTask", "RecurringTask"}:
         args = (table,)
+    if table in actions_mapping and action in actions_mapping[table]:
+        func = actions_mapping[table][action]
 
-    table_actions = actions_mapping.get(table, {})
-    func = table_actions.get(action)
-
-    if func:
-        # Call the function with the additional arguments and return its result
         return func(*args)
 
     print(f"Invalid table or action: table={table}, action={action}")
