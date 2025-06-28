@@ -1,4 +1,4 @@
-# from EasyForce.data_mangement.data_structure.entities_classes import Team, Soldier
+# from EasyForce.data_management.data_structure.entities_classes import Team, Soldier
 # from EasyForce.interface.user_questions_management.general_questions import ask_closed_ended_question, \
 #     ask_open_ended_question
 

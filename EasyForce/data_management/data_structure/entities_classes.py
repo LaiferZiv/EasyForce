@@ -7,7 +7,7 @@ with typed attributes and without parentheses when returning tuples.
 from datetime import datetime,timedelta
 
 from EasyForce.common.constants import UNNECESSARILY_TIME_RANGE
-from EasyForce.data_mangement.data_structure.data_modification import BaseEntity
+from EasyForce.data_management.data_structure.data_modification import BaseEntity
 
 class TimeRange(BaseEntity):
     TimeID: int = None
@@ -31,7 +31,7 @@ class TimeRange(BaseEntity):
         return True
     @classmethod
     def garbage_collector(cls):
-        from EasyForce.data_mangement.data_structure.relationships_classes import Presence, CurrentTaskAssignment, TaskHistory
+        from EasyForce.data_management.data_structure.relationships_classes import Presence, CurrentTaskAssignment, TaskHistory
 
         presence_table_time_ids = Presence.get_column_values("TimeID")
         current_task_assignment_table_time_ids = CurrentTaskAssignment.get_column_values("TimeID")

@@ -6,9 +6,9 @@ Relationship (bridge) tables, also only calling .add(), .delete(), etc. internal
 from typing import Union
 
 from EasyForce.common.constants import PRESENCE_TABLE, TIME_RANGE_TABLE
-from EasyForce.data_mangement.data_structure.data_modification import BaseEntity
-from EasyForce.data_mangement.data_structure.entities_classes import TimeRange
-from EasyForce.data_mangement.read_db import display_table
+from EasyForce.data_management.data_structure.data_modification import BaseEntity
+from EasyForce.data_management.data_structure.entities_classes import TimeRange
+from EasyForce.data_management.read_db import display_table
 
 
 class Presence(BaseEntity):

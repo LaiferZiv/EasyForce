@@ -1,7 +1,7 @@
 # Task - Define task type (either TemporaryTask or RecurringTask)
 from EasyForce.common.constants import RECURRING_TASK_TABLE, TEMPORARY_TASK_TABLE
 from EasyForce.common.utils import initialize_table_names, extract_match_from_text
-from EasyForce.data_mangement.read_db import display_table
+from EasyForce.data_management.read_db import display_table
 
 def define_task_type():
     question = "Which task would you like to add?"
