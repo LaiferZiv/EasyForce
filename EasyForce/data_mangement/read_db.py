@@ -7,7 +7,6 @@ def display_table(table_name):
     """Display the contents of a specified table, printing first the tuple of column names
     in their creation order, then each row in that same order."""
 
-    # Use the common DB path so that all components operate on the same file
     database_name = DB_PATH
     conn = None
     try:
@@ -55,7 +54,7 @@ def get_primary_key_val_by_unique_column_val(table, unique_text_value):
     Returns:
         int or None: The primary key of the record if found, or None if no matching record exists.
     """
-    # Use the same database path as the rest of the application
+
     database_name = DB_PATH
 
     # Get the primary key column(s) and unique column name
@@ -150,7 +149,6 @@ def get_unique_column_name(table):
     if table in ("SoldierRole", "Presence", "TaskRole"):
         return None
 
-    # Use the shared database path constant
     database_name = DB_PATH
     try:
         with sqlite3.connect(database_name) as conn:
