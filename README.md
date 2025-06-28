@@ -53,12 +53,12 @@ The project relies on the Python standard library (e.g., `sqlite3`) and does not
 - **Testing** – expand coverage. The example under `tests/` now imports modules correctly but covers only minimal behaviour.
 
 ## Suggestions for Improvements
-- Add unit tests that cover CRUD operations and the interactive interface.
-- Expand the scheduling logic module to actually allocate shifts based on roles and presence data.
-- Complete the stubbed functions for update/delete operations to provide full CRUD functionality.
-- Consider refactoring helpers in `read_db.py` and consolidating repeated code.
-- Implement command line argument parsing or configuration to improve usability.
+
+- Implement command line argument parsing or configuration for easier customization.
+- Introduce structured logging and better error handling in place of print statements.
 - Package the project so users can install it as a standalone application (e.g. using PyInstaller or a simple pip install).
+- Integrate continuous integration to automatically run tests on pull requests.
+
 
 ## How to Contribute
 Contributions are welcome! Fork the repository and submit a pull request. Please open an issue first for major changes to discuss your proposal.
