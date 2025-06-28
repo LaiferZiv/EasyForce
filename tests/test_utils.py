@@ -1,6 +1,7 @@
 import pytest
 from EasyForce.common.utils import questions
-from EasyForce.data_mangement.data_structure.entities_classes import Team
+# Corrected import path
+from EasyForce.data_management.data_structure.entities_classes import Team
 
 
 def test_questions_team_define_returns_none():
