@@ -119,8 +119,8 @@ class BaseEntity:
             column_name (str): The name of the column to retrieve values from.
 
         Returns:
-            list: A list of values from the specified column if it exists and contains values.
-            None: If the column doesn't exist or contains no values.
+            list: A list of values from the specified column. Returns an empty
+            list when the column is missing or contains no rows.
         """
         table_name = cls.get_table_name()
         columns = cls.get_columns()
