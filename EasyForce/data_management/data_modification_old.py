@@ -1,5 +1,5 @@
 # import sqlite3
-# from EasyForce.data_mangement.read_db import get_primary_key_column_names,get_unique_column_name
+# from EasyForce.data_management.read_db import get_primary_key_column_names,get_unique_column_name
 # from EasyForce.common.config import DB_PATH
 #
 # def add_record(table, data):

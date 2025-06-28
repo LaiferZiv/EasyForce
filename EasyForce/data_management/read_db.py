@@ -54,6 +54,7 @@ def get_primary_key_val_by_unique_column_val(table, unique_text_value):
     Returns:
         int or None: The primary key of the record if found, or None if no matching record exists.
     """
+
     database_name = DB_PATH
 
     # Get the primary key column(s) and unique column name

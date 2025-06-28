@@ -5,7 +5,7 @@ Functions for adding new entity records (TimeRange, Team, Soldier, Role, Tasks, 
 All DB calls happen inside the entity class methods (no conn param).
 """
 
-from EasyForce.data_mangement.data_structure.entities_classes import (
+from EasyForce.data_management.data_structure.entities_classes import (
     Team, Soldier, TemporaryTask, RecurringTask
 )
 from EasyForce.common.constants import *

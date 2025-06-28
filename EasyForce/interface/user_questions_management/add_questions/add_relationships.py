@@ -6,10 +6,10 @@ All DB calls only happen in the class methods (no conn param).
 """
 from datetime import timedelta
 
-from EasyForce.data_mangement.data_structure.relationships_classes import (
+from EasyForce.data_management.data_structure.relationships_classes import (
     Presence, SoldierRole, TaskRole
 )
-from EasyForce.data_mangement.data_structure.entities_classes import TimeRange, Soldier, Role, Team
+from EasyForce.data_management.data_structure.entities_classes import TimeRange, Soldier, Role, Team
 from EasyForce.common.constants import *
 from EasyForce.common.utils import (
     is_positive_integer, yes_no_question, get_datetime_input
